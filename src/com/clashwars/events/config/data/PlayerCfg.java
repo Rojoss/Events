@@ -1,4 +1,4 @@
-package com.clashwars.events.config;
+package com.clashwars.events.config.data;
 
 import com.clashwars.cwcore.config.internal.EasyConfig;
 import com.clashwars.events.Events;

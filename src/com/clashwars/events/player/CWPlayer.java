@@ -1,9 +1,8 @@
 package com.clashwars.events.player;
 
-import com.clashwars.cwcore.CooldownManager;
 import com.clashwars.cwcore.helpers.CWItem;
 import com.clashwars.events.Events;
-import com.clashwars.events.config.PlayerCfg;
+import com.clashwars.events.config.data.PlayerCfg;
 import com.clashwars.events.events.GameSession;
 import org.bukkit.*;
 import org.bukkit.entity.Player;

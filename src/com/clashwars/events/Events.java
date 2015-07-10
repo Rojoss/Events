@@ -2,16 +2,17 @@ package com.clashwars.events;
 
 import com.clashwars.cwcore.CWCore;
 import com.clashwars.events.commands.Commands;
-import com.clashwars.events.config.MapCfg;
-import com.clashwars.events.config.PlayerCfg;
+import com.clashwars.events.config.data.MapCfg;
+import com.clashwars.events.config.data.PlayerCfg;
+import com.clashwars.events.config.PluginCfg;
 import com.clashwars.events.events.EventType;
 import com.clashwars.events.events.SessionManager;
 import com.clashwars.events.maps.MapManager;
+import com.clashwars.events.mysql.MySQL;
 import com.clashwars.events.player.PlayerManager;
 import com.google.gson.Gson;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.event.Event;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -27,6 +28,10 @@ public class Events extends JavaPlugin {
 
     private Commands cmds;
 
+    private MySQL sql;
+    private Connection c;
+
+    public PluginCfg pluginCfg;
     public PlayerCfg playerCfg;
     public MapCfg mapCfg;
 
@@ -56,10 +61,23 @@ public class Events extends JavaPlugin {
         }
         cwcore = (CWCore)plugin;
 
+        pluginCfg = new PluginCfg("plugins/Events/Config.yml");
+        pluginCfg.load();
         playerCfg = new PlayerCfg("plugins/Events/data/Players.yml");
         playerCfg.load();
         mapCfg = new MapCfg("plugins/Events/data/Maps.yml");
         mapCfg.load();
+
+        sql = new MySQL(this, "37.26.106.5", "3306", "clashwar_data", "clashwar_main", pluginCfg.SQL__PASS);
+        try {
+            c = sql.openConnection();
+        } catch(Exception e) {
+            log("##############################################################");
+            log("Unable to connect to MySQL!");
+            log("Stats and all other data won't be synced/stored!");
+            log("The game should still be able to run fine but this message shouldn't be ignored!");
+            log("##############################################################");
+        }
 
         pm = new PlayerManager(this);
         em = new EventManager(this);
@@ -108,6 +126,10 @@ public class Events extends JavaPlugin {
 
     public Gson getGson() {
         return gson;
+    }
+
+    public Connection getSql() {
+        return c;
     }
 
 }

@@ -1,7 +1,7 @@
 package com.clashwars.events.player;
 
 import com.clashwars.events.Events;
-import com.clashwars.events.config.PlayerCfg;
+import com.clashwars.events.config.data.PlayerCfg;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
