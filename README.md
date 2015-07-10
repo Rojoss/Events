@@ -21,6 +21,7 @@ Another important rule is to write simple javadoc comments above all methods and
 ## Creating an event ##
 
 If you'd like to add your own event to this plugin you can do so and it's not very hard.
+
 * First of all you add the event to the EventType enum.
 * Then you create a class for your event like Spleef.java and extend this from BaseEvent.
 * Add the constructor to your class which calls super() like the other event classes do.
