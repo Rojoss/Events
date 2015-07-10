@@ -1,0 +1,10 @@
+main : com.clashwars.events.Events
+name: Events
+version: 0.1
+description: ClashWars Events plugin.
+depend: [CWCore]
+commands:
+  event:
+    description: Main events command.
+    usage: /<command>
+    aliases: [events,ev,e]
