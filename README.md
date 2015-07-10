@@ -27,6 +27,7 @@ If you'd like to add your own event to this plugin you can do so and it's not ve
 * Add setup options if your event needs them like for spleef we need a floor cuboid.
 * Create event listeners for all the things that handle your game. (see below)
 * Create another class for your event and name it EventSession where you replace the event with your event name. like SpleefSession. (For each map a session is created when players join it)
+* Add an if statement inside the createSession method in SessionManager for the event.
 * In this Session class you override everything from GameSession what you need to change. Like you might want the max time be more than 5 minutes.
 
 ### Adding event listeners ###
