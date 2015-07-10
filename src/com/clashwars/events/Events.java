@@ -3,9 +3,11 @@ package com.clashwars.events;
 import com.clashwars.cwcore.CWCore;
 import com.clashwars.events.commands.Commands;
 import com.clashwars.events.config.MapCfg;
+import com.clashwars.events.config.PlayerCfg;
 import com.clashwars.events.events.EventType;
 import com.clashwars.events.events.SessionManager;
 import com.clashwars.events.maps.MapManager;
+import com.clashwars.events.player.PlayerManager;
 import com.google.gson.Gson;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -25,8 +27,10 @@ public class Events extends JavaPlugin {
 
     private Commands cmds;
 
+    public PlayerCfg playerCfg;
     public MapCfg mapCfg;
 
+    public PlayerManager pm;
     public EventManager em;
     public SessionManager sm;
     public MapManager mm;
@@ -52,9 +56,12 @@ public class Events extends JavaPlugin {
         }
         cwcore = (CWCore)plugin;
 
+        playerCfg = new PlayerCfg("plugins/Events/data/Players.yml");
+        playerCfg.load();
         mapCfg = new MapCfg("plugins/Events/data/Maps.yml");
         mapCfg.load();
 
+        pm = new PlayerManager(this);
         em = new EventManager(this);
         sm = new SessionManager(this);
         mm = new MapManager(this);

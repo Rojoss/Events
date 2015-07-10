@@ -4,6 +4,7 @@ import com.clashwars.cwcore.packet.Title;
 import com.clashwars.cwcore.utils.CWUtil;
 import com.clashwars.events.Events;
 import com.clashwars.events.maps.EventMap;
+import com.clashwars.events.player.CWPlayer;
 import com.clashwars.events.runnables.SessionTimer;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -95,6 +96,9 @@ public class GameSession {
      * Make sure to check canJoin() before joining (this has 0 checks if the player can join or not)
      */
     public void join(Player player) {
+        CWPlayer cwp = events.pm.getPlayer(player);
+        cwp.setSession(session);
+
         if (isStarted()) {
             spectators.add(player);
             broadcast("&6&l+&7" + player.getDisplayName() + " &8(&3&lS&8)", true);
@@ -119,6 +123,9 @@ public class GameSession {
 
     /** Remove the given player from this session. */
     public void leave(Player player) {
+        CWPlayer cwp = events.pm.getPlayer(player);
+        cwp.removeSession();
+
         if (players.contains(player)) {
             players.remove(player);
             broadcast("&4&l-&7" + player.getDisplayName(), true);
