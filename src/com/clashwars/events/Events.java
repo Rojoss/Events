@@ -8,7 +8,6 @@ import com.clashwars.events.config.PluginCfg;
 import com.clashwars.events.events.EventType;
 import com.clashwars.events.events.SessionManager;
 import com.clashwars.events.maps.MapManager;
-import com.clashwars.events.mysql.MySQL;
 import com.clashwars.events.player.PlayerManager;
 import com.google.gson.Gson;
 import org.bukkit.command.Command;
@@ -27,9 +26,6 @@ public class Events extends JavaPlugin {
     private Gson gson = new Gson();
 
     private Commands cmds;
-
-    private MySQL sql;
-    private Connection c;
 
     public PluginCfg pluginCfg;
     public PlayerCfg playerCfg;
@@ -50,7 +46,6 @@ public class Events extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        Long t = System.currentTimeMillis();
         instance = this;
 
         Plugin plugin = getServer().getPluginManager().getPlugin("CWCore");
@@ -67,17 +62,6 @@ public class Events extends JavaPlugin {
         playerCfg.load();
         mapCfg = new MapCfg("plugins/Events/data/Maps.yml");
         mapCfg.load();
-
-        sql = new MySQL(this, "37.26.106.5", "3306", "clashwar_data", "clashwar_main", pluginCfg.SQL__PASS);
-        try {
-            c = sql.openConnection();
-        } catch(Exception e) {
-            log("##############################################################");
-            log("Unable to connect to MySQL!");
-            log("Stats and all other data won't be synced/stored!");
-            log("The game should still be able to run fine but this message shouldn't be ignored!");
-            log("##############################################################");
-        }
 
         pm = new PlayerManager(this);
         em = new EventManager(this);
@@ -122,14 +106,8 @@ public class Events extends JavaPlugin {
     }
 
 
-
-
     public Gson getGson() {
         return gson;
-    }
-
-    public Connection getSql() {
-        return c;
     }
 
 }
