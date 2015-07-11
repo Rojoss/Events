@@ -10,5 +10,6 @@ public enum JoinType {
     ENDED, /** When the session has ended */
     RESETTING, /** When the session is still resetting */
     JOIN, /** When the player can join the session */
+    JOIN_BACK, /** When the player joins back while a session is on hold */
     SPECTATE; /** When the session is started but the player can spectate */
 }

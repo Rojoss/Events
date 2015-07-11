@@ -2,13 +2,16 @@ package com.clashwars.events.events;
 
 import com.clashwars.cwcore.cuboid.Cuboid;
 import com.clashwars.events.Events;
+import com.clashwars.events.config.data.SessionCfg;
 import com.clashwars.events.events.koh.KohSession;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Manager class to access and manage all GameSessions.
@@ -16,13 +19,20 @@ import java.util.List;
  */
 public class SessionManager {
 
-    private Events ev;
+    private Events events;
+    private SessionCfg sessionCfg;
 
-    private int sessionCount = 0;
-    private List<GameSession> sessions = new ArrayList<GameSession>();
+    private HashMap<Integer, GameSession> sessions = new HashMap<Integer, GameSession>();
 
-    public SessionManager(Events ev) {
-        this.ev = ev;
+    public SessionManager(Events events) {
+        this.events = events;
+        sessionCfg = events.sessionCfg;
+
+        //Load in sessions from config
+        Map<Integer, SessionData> cfgSessions = sessionCfg.getSessions();
+        for (SessionData data : cfgSessions.values()) {
+            createSession(data);
+        }
     }
 
 
@@ -30,13 +40,40 @@ public class SessionManager {
 
     //Create a new session.
     private GameSession createSession(EventType type, String mapName) {
+        int sessionID = sessionCfg.SESSION_COUNT;
+        sessionCfg.SESSION_COUNT++;
+
+        SessionData data = new SessionData(type, mapName);
+        data.setSessionID(sessionID);
+        sessionCfg.setSession(sessionID, data);
+
         GameSession session = null;
         if (type == EventType.KOH) {
-            session = new KohSession(sessionCount, type, mapName);
+            session = new KohSession(data, false);
         }
         if (session != null) {
-            sessions.add(session);
-            sessionCount++;
+            if (session.getMap() != null && session.getMap().isValid() && !session.getMap().isClosed()) {
+                session.setState(State.OPENED);
+            } else {
+                session.setState(State.CLOSED);
+            }
+            sessions.put(sessionID, session);
+        }
+        return session;
+    }
+
+    private GameSession createSession(SessionData data) {
+        GameSession session = null;
+        if (data.getEventType() == EventType.KOH) {
+            session = new KohSession(data, true);
+        }
+
+        if (session != null) {
+            if (session.getMap() != null && session.getMap().isValid() && !session.getMap().isClosed()) {
+                session.setState(State.ON_HOLD);
+            } else {
+                session.setState(State.CLOSED);
+            }
         }
         return session;
     }
@@ -47,12 +84,20 @@ public class SessionManager {
      * If there is no session for this event-map then it will create a new session and return this.
      */
     public GameSession getSession(EventType eventType, String mapName) {
-        for (GameSession session : sessions) {
+        for (GameSession session : sessions.values()) {
             if (session.getType() == eventType && session.getMapName().equals(mapName)) {
                 return session;
             }
         }
         return createSession(eventType, mapName);
+    }
+
+    /** Get a GameSession by ID. If the session doesn't exist it will return null! */
+    public GameSession getSession(Integer id) {
+        if (sessions.containsKey(id)) {
+            return sessions.get(id);
+        }
+        return null;
     }
 
 
@@ -66,7 +111,7 @@ public class SessionManager {
     }
     /** Get a session at the given location. Returns null if no valid session was found. */
     public GameSession getSession(Location location) {
-        for (GameSession session : sessions) {
+        for (GameSession session : sessions.values()) {
             if (session.getMap() != null && session.getMap().isValid()) {
                 Cuboid mapCub = session.getMap().getCuboid("arena");
                 if (mapCub != null && mapCub.contains(location)) {

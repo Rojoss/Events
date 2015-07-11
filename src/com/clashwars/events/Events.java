@@ -5,6 +5,7 @@ import com.clashwars.events.commands.Commands;
 import com.clashwars.events.config.data.MapCfg;
 import com.clashwars.events.config.data.PlayerCfg;
 import com.clashwars.events.config.PluginCfg;
+import com.clashwars.events.config.data.SessionCfg;
 import com.clashwars.events.events.EventType;
 import com.clashwars.events.events.SessionManager;
 import com.clashwars.events.maps.MapManager;
@@ -30,6 +31,7 @@ public class Events extends JavaPlugin {
     public PluginCfg pluginCfg;
     public PlayerCfg playerCfg;
     public MapCfg mapCfg;
+    public SessionCfg sessionCfg;
 
     public PlayerManager pm;
     public EventManager em;
@@ -62,6 +64,8 @@ public class Events extends JavaPlugin {
         playerCfg.load();
         mapCfg = new MapCfg("plugins/Events/data/Maps.yml");
         mapCfg.load();
+        sessionCfg = new SessionCfg("plugins/Events/data/Sessions.yml");
+        sessionCfg.load();
 
         pm = new PlayerManager(this);
         em = new EventManager(this);
