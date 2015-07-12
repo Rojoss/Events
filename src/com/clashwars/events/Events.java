@@ -1,7 +1,7 @@
 package com.clashwars.events;
 
 import com.clashwars.cwcore.CWCore;
-import com.clashwars.events.commands.Commands;
+import com.clashwars.events.commands.internal.Commands;
 import com.clashwars.events.config.data.MapCfg;
 import com.clashwars.events.config.data.PlayerCfg;
 import com.clashwars.events.config.PluginCfg;
@@ -17,7 +17,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.sql.Connection;
 import java.util.logging.Logger;
 
 public class Events extends JavaPlugin {
@@ -83,7 +82,7 @@ public class Events extends JavaPlugin {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        return cmds.onCommand(sender, cmd, label, args);
+        return cmds.onCommand(sender, label, args);
     }
 
     private void registerEvents() {
@@ -107,6 +106,10 @@ public class Events extends JavaPlugin {
 
     public static Events inst() {
         return instance;
+    }
+
+    public CWCore getCore() {
+        return cwcore;
     }
 
 

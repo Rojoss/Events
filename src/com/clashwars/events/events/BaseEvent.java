@@ -27,4 +27,24 @@ public class BaseEvent implements Listener {
         return setupOptions;
     }
 
+    /** Check if the event needs the specified setup option. */
+    public boolean hasSetupOption(SetupType type, String name) {
+        for (SetupOption option : setupOptions) {
+            if (option.type == type && option.name.equalsIgnoreCase(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Try and get a SetupOption from the given name. If it doesn't have this option it will return null. */
+    public SetupOption getSetupOption(String name) {
+        for (SetupOption option : setupOptions) {
+            if (option.name.equalsIgnoreCase(name)) {
+                return option;
+            }
+        }
+        return null;
+    }
+
 }

@@ -8,3 +8,6 @@ commands:
     description: Main events command.
     usage: /<command>
     aliases: [events,ev,e]
+  setup:
+    description: Event/map setup commands.
+    usage: /<command>

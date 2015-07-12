@@ -17,23 +17,23 @@ public class MapCfg extends EasyConfig {
 
     public HashMap<String, MapData> getMaps() {
         HashMap<String, MapData> maps = new HashMap<String, MapData>();
-        for (String key : MAPS.keySet()) {
-            maps.put(key, Events.inst().getGson().fromJson(MAPS.get(key), MapData.class));
+        for (String mapTag : MAPS.keySet()) {
+            maps.put(mapTag, Events.inst().getGson().fromJson(MAPS.get(mapTag), MapData.class));
         }
         return maps;
     }
 
-    public MapData getMap(String mapName) {
-        return Events.inst().getGson().fromJson(MAPS.get(mapName), MapData.class);
+    public MapData getMap(String mapTag) {
+        return Events.inst().getGson().fromJson(MAPS.get(mapTag), MapData.class);
     }
 
-    public void setMap(String mapName, MapData mapData) {
-        MAPS.put(mapName, Events.inst().getGson().toJson(mapData, MapData.class));
+    public void setMap(String mapTag, MapData mapData) {
+        MAPS.put(mapTag, Events.inst().getGson().toJson(mapData, MapData.class));
         save();
     }
 
-    public void removeMap(String mapName) {
-        MAPS.remove(mapName);
+    public void removeMap(String mapTag) {
+        MAPS.remove(mapTag);
         save();
     }
 }

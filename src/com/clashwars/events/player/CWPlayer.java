@@ -1,8 +1,10 @@
 package com.clashwars.events.player;
 
 import com.clashwars.cwcore.helpers.CWItem;
+import com.clashwars.cwcore.utils.CWUtil;
 import com.clashwars.events.Events;
 import com.clashwars.events.config.data.PlayerCfg;
+import com.clashwars.events.events.EventType;
 import com.clashwars.events.events.GameSession;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -26,6 +28,9 @@ public class CWPlayer {
 
     private GameSession session;
 
+    private EventType selectedEvent;
+    private String selectedMap;
+
     /** Create a new CWPlayer instance with the given player UUID and PlayerData. */
     public CWPlayer(UUID uuid, PlayerData data) {
         this.events = Events.inst();
@@ -46,34 +51,7 @@ public class CWPlayer {
         if (player == null) {
             return;
         }
-
-        player.getInventory().clear();
-        player.getInventory().setHelmet(new CWItem(Material.AIR));
-        player.getInventory().setChestplate(new CWItem(Material.AIR));
-        player.getInventory().setLeggings(new CWItem(Material.AIR));
-        player.getInventory().setBoots(new CWItem(Material.AIR));
-        player.updateInventory();
-
-        player.setMaxHealth(20);
-        player.setHealth(20);
-        player.setFoodLevel(20);
-        player.setFlying(false);
-        player.setAllowFlight(false);
-        player.setFireTicks(0);
-        player.setGameMode(GameMode.SURVIVAL);
-        player.setSaturation(10);
-        player.setWalkSpeed(0.2f);
-        player.setFlySpeed(0.1f);
-        player.setTotalExperience(0);
-        player.setLevel(0);
-        player.setExp(0);
-
-        Collection<PotionEffect> effects = player.getActivePotionEffects();
-        for (PotionEffect pe : effects) {
-            player.removePotionEffect(pe.getType());
-        }
-
-        player.updateInventory();
+        CWUtil.resetPlayer(player, GameMode.SURVIVAL);
     }
 
     /** Reset all data from this player. */
@@ -89,17 +67,6 @@ public class CWPlayer {
     /** Save this player his data to config */
     public void savePlayer() {
         pcfg.setPlayer(uuid, data);
-    }
-
-    /** Get a suffix for teams based on permissions. If staff it will return '_s' and if VIP it will return '_v' */
-    public String getTeamSuffix() {
-        if (getPlayer().hasPermission("team.staff")) {
-            return "_s";
-        }
-        if (getPlayer().hasPermission("team.vip")) {
-            return "_v";
-        }
-        return "";
     }
 
 
@@ -123,6 +90,23 @@ public class CWPlayer {
     public void removeSession() {
         session = null;
         data.setSessionID(-1);
+    }
+
+
+    public EventType getSelectedEvent() {
+        return selectedEvent;
+    }
+
+    public void setSelectedEvent(EventType selectedEvent) {
+        this.selectedEvent = selectedEvent;
+    }
+
+    public String getSelectedMap() {
+        return selectedMap;
+    }
+
+    public void setSelectedMap(String selectedMap) {
+        this.selectedMap = selectedMap;
     }
 
 
