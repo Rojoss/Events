@@ -145,6 +145,7 @@ public class GameSession {
         if (isOnHold()) {
             //Joining back while the session is on hold. (Only allow previous players to join. Others will be put in spectate mode)
             if (hasPlayer(uuid, true, true, true)) {
+                cwp.setSpectating(false);
                 if (hasVip(uuid)) {
                     broadcast("&6&l+&3" + player.getDisplayName(), true);
                 } else {
@@ -152,7 +153,8 @@ public class GameSession {
                 }
             } else {
                addSpectator(uuid);
-               broadcast("&6&l+&3" + player.getDisplayName() + " &8(&d&lS&8)", true);
+                cwp.setSpectating(true);
+                broadcast("&6&l+&3" + player.getDisplayName() + " &8(&d&lS&8)", true);
             }
 
             //If all players (expect spectators) join back start the game again.
@@ -165,12 +167,15 @@ public class GameSession {
                 return;
             }
             if (isStarted()) {
+                cwp.setSpectating(true);
                 addSpectator(uuid);
                 broadcast("&6&l+&3" + player.getDisplayName() + " &8(&d&lS&8)", true);
             } else if (player.hasPermission("events.vip") && getVipPlayerSize() < map.getVipSpots()) {
+                cwp.setSpectating(false);
                 addVip(uuid);
                 broadcast("&6&l+&3" + player.getDisplayName(), true);
             } else {
+                cwp.setSpectating(false);
                 addPlayer(uuid);
                 broadcast("&6&l+&3" + player.getDisplayName(), true);
             }
@@ -241,7 +246,9 @@ public class GameSession {
     /** Start the 10 second countdown and teleport all players to the map. */
     public void startCountdown() {
         setState(State.COUNTDOWN);
-        //TODO: Teleport players to map.
+        for (Player player : getAllOnlinePlayers(true)) {
+            teleportPlayer(player);
+        }
         //TODO: Calculate randomized game modfiers.
     }
 
@@ -309,6 +316,10 @@ public class GameSession {
     //==========================================
     //============== Session Utils =============
     //==========================================
+
+    public void teleportPlayer(Player player) {
+        player.teleport(map.getCuboid("map").getCenterLoc());
+    }
 
     /** Broadcast a message to all players in the session */
     public void broadcast(String message, boolean spectators) {
