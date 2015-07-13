@@ -36,7 +36,7 @@ public class SessionCfg extends EasyConfig {
     }
 
     public void removeSession(int id) {
-        SESSIONS.remove(id);
+        SESSIONS.remove(Integer.toString(id));
         save();
     }
 }
