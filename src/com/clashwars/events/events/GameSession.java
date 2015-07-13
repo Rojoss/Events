@@ -1,5 +1,6 @@
 package com.clashwars.events.events;
 
+import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.cwcore.packet.Title;
 import com.clashwars.cwcore.utils.CWUtil;
 import com.clashwars.events.Events;
@@ -53,15 +54,26 @@ public class GameSession {
             spawnLocs = new ArrayList<Location>(getMap().getMultiLocs("spawn").values());
 
             if (loadedFromConfig) {
+                //Only put events on hold that have been started already.
+                if (!isStarted()) {
+                    broadcast("&4&lThe session has been removed!", true);
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            delete();
+                        }
+                    }.runTaskLater(events, 5);
+                    return;
+                }
                 setState(State.ON_HOLD);
+                timer.startResumeTimer(20);
+                broadcast("&6&lWaiting for players to join back...", true);
 
                 //Add back all players that are online.
                 List<Player> onlinePlayers = getAllOnlinePlayers(true);
                 for (Player player : onlinePlayers) {
                     join(player);
                 }
-
-                //TODO: Start on hold timer for players to join back.
             } else {
                 setState(State.OPENED);
             }
@@ -167,9 +179,8 @@ public class GameSession {
             }
 
             //If all players (expect spectators) join back start the game again.
-            if (getAllPlayers(false).size() == getAllOnlinePlayers(false).size()) {
-                broadcast("&6&lAll players have joined back!", true);
-                resume();
+            if (timer.getResumeTime() > 5 && getAllPlayers(false).size() == getAllOnlinePlayers(false).size()) {
+                timer.setResumeTimeRemaining(4);
             }
         } else {
             if (hasPlayer(uuid, true, true, true)) {
@@ -217,37 +228,48 @@ public class GameSession {
     }
 
     /** Remove the given player from this session. */
-    public void leave(Player player) {
+    public void leave(OfflinePlayer player) {
         UUID uuid = player.getUniqueId();
         CWPlayer cwp = events.pm.getPlayer(player);
-        cwp.removeSession();
-        cwp.reset();
-        cwp.resetData();
 
-        player.teleport(player.getWorld().getSpawnLocation()); //TODO: Have a location for each event where players tp back to.
+        String playerName = player.getName();
+        if (player.isOnline()) {
+            playerName = ((Player)player).getDisplayName();
+
+            cwp.removeSession();
+            cwp.reset();
+            cwp.resetData();
+
+            ((Player)player).teleport(((Player)player).getWorld().getSpawnLocation()); //TODO: Have a location for each event where players tp back to.
+        }
 
         if (hasPlayer(uuid)) {
             removePlayer(uuid);
-            broadcast("&4&l-&7" + player.getDisplayName(), true);
+            broadcast("&4&l-&7" + playerName, true);
         } else if (hasVip(uuid)) {
             removeVip(uuid);
-            broadcast("&4&l-&7" + player.getDisplayName(), true);
+            broadcast("&4&l-&7" + playerName, true);
         } else if (hasSpectator(uuid)) {
             removeSpectator(uuid);
-            broadcast("&4&l-&7" + player.getDisplayName()  + " &8(&dS&8)", true);
+            broadcast("&4&l-&7" + playerName  + " &8(&dS&8)", true);
         }
 
-        if (isJoinable()) {
-            if (getPlayerCount(false) <= 0) {
-                //If no players left remove the session.
-                delete();
-            } if (getPlayerCount(false) < map.getMinPlayers()) {
-                //If not enough players anymore stop the timer.
+        Util.updateSign(map, session);
+        save();
+
+        if (getPlayerCount(false) <= 0) {
+            //If no players left remove the session.
+            delete();
+        } else if (getPlayerCount(false) < map.getMinPlayers()) {
+            //If not enough players anymore stop the timer or end the game.
+            if (isStarted()) {
+                broadcast("&c&lThere aren't enough players remaining to continue the game!", true);
+                forceEnd();
+                //TODO: End game with a winner if it's almost finished. (Need some good way to know if games are almost finished prob something per event)
+            } else if (isJoinable()) {
                 stopCountdown();
             }
         }
-        Util.updateSign(map, session);
-        save();
     }
 
 
@@ -314,16 +336,24 @@ public class GameSession {
 
     /** Delete the session so a new session can be opened for this map */
     public void delete() {
-        timer.stopCountdownTimer();
-        for (Player player : getAllOnlinePlayers(true)) {
-            leave(player);
+        if (session != null) {
+            session = null;
+            timer.cancel();
+            for (Player player : getAllOnlinePlayers(true)) {
+                leave(player);
+            }
+            Util.updateSign(map, null);
+            events.sm.deleteSession(getID());
         }
-        Util.updateSign(map, null);
-        events.sm.deleteSession(getID());
     }
 
     /** Resume the session after it's put on hold. */
     public void resume() {
+        if (getPlayerCount(false) < map.getMinPlayers()) {
+            broadcast("&c&lNot enough players joined back!", true);
+            delete();
+            return;
+        }
         setState(State.STARTED);
         broadcast("&6The game has been &a&lresumed&6!", true);
     }
@@ -534,6 +564,7 @@ public class GameSession {
     public void setState(State state) {
         data.setState(state);
         Util.updateSign(map, session);
+        save();
     }
 
     /** Returns true if the session is opened */
@@ -624,7 +655,9 @@ public class GameSession {
 
     /** Save the session to config */
     public void save() {
-        events.sessionCfg.setSession(getID(), data);
+        if (session != null) {
+            events.sessionCfg.setSession(getID(), data);
+        }
     }
 
 }
