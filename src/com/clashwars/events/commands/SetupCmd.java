@@ -218,6 +218,9 @@ public class SetupCmd extends PlayerCmd {
 
             if (map.setblock(args[1], blocks.get(1))) {
                 player.sendMessage(Util.formatMsg("&6Block location &a" + args[1] + " set! &8(&7" + blocks.get(1).getType() + "&8)"));
+                if (args[1].equalsIgnoreCase("sign")) {
+                    Util.updateSign(map, null);
+                }
             } else {
                 player.sendMessage(Util.formatMsg("&cInvalid name! &7This event doesn't require a block with the name " + args[1] + "!"));
             }
