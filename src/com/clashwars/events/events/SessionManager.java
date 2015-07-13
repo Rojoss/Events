@@ -1,6 +1,7 @@
 package com.clashwars.events.events;
 
 import com.clashwars.cwcore.cuboid.Cuboid;
+import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.events.Events;
 import com.clashwars.events.config.data.SessionCfg;
 import com.clashwars.events.events.koh.KohSession;
@@ -78,6 +79,14 @@ public class SessionManager {
         return session;
     }
 
+    /** Delete the session with the specified ID so that a new session can be started. */
+    public void deleteSession(int sessionID) {
+        if (sessions.containsKey(sessionID)) {
+            sessions.remove(sessionID);
+            sessionCfg.removeSession(sessionID);
+        }
+    }
+
 
     /**
      * Get/create a GameSession from the specified EventType and mapName.
@@ -90,6 +99,16 @@ public class SessionManager {
             }
         }
         return createSession(eventType, mapName);
+    }
+
+    /** Returns true if there is a session for this event/map and false if not. */
+    public boolean hasSession(EventType eventType, String mapName) {
+        for (GameSession session : sessions.values()) {
+            if (session.getType() == eventType && session.getMapName().equals(mapName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Get a GameSession by ID. If the session doesn't exist it will return null! */
