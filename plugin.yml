@@ -11,3 +11,7 @@ commands:
   setup:
     description: Event/map setup commands.
     usage: /<command>
+  leave:
+    description: Player command to leave the current game.
+    usage: /<command>
+    aliases: [quit,hub,lobby]
