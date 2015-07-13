@@ -19,6 +19,9 @@ public class SessionTimer extends BukkitRunnable {
     private boolean timerRunning = false;
     private int timerSeconds = -1;
 
+    private boolean resumeTimerRunning = false;
+    private int resumeTimerSeconds = -1;
+
     public SessionTimer(int sessionID) {
         this.sessionID = sessionID;
         runTaskTimer(Events.inst(), 0, 20);
@@ -27,13 +30,13 @@ public class SessionTimer extends BukkitRunnable {
 
     /** Start the countdown timer if there is no timer running */
     public void startCountdownTimer(int seconds) {
-        if (!isCountdownTimerRunning()) {
+        if (!isResumeTimerRunning() && !isCountdownTimerRunning()) {
             timerSeconds = seconds;
             timerRunning = true;
         }
     }
 
-    /** Stop the countdown timer if there is a timer running */
+    /** Stop the countdown timer if it's running */
     public void stopCountdownTimer() {
         if (isCountdownTimerRunning()) {
             timerRunning = false;
@@ -41,7 +44,7 @@ public class SessionTimer extends BukkitRunnable {
         }
     }
 
-    /** Sets the time left on the timer. Only if it's lower than the current time left. */
+    /** Sets the time left on the countdown timer. Only if it's lower than the current time left. */
     public void setCountdownTimeRemaining(int seconds) {
         timerSeconds = Math.min(timerSeconds, seconds);
     }
@@ -50,6 +53,40 @@ public class SessionTimer extends BukkitRunnable {
     public boolean isCountdownTimerRunning() {
         return timerRunning;
     }
+
+
+
+    /** Start the resume timer if there is no timer running */
+    public void startResumeTimer(int seconds) {
+        if (!isCountdownTimerRunning() && !isResumeTimerRunning()) {
+            resumeTimerSeconds = seconds;
+            resumeTimerRunning = true;
+        }
+    }
+
+    /** Stop the resume timer if there it's running */
+    public void stopResumeTimer() {
+        if (isResumeTimerRunning()) {
+            resumeTimerRunning = false;
+            resumeTimerSeconds = -1;
+        }
+    }
+
+    /** Sets the time left on the resume timer. Only if it's lower than the current time left. */
+    public void setResumeTimeRemaining(int seconds) {
+        resumeTimerSeconds = Math.min(resumeTimerSeconds, seconds);
+    }
+
+    /** Returns true if the resume timer has started */
+    public boolean isResumeTimerRunning() {
+        return resumeTimerRunning;
+    }
+
+    /** Get the amount of seconds left on the resume timer */
+    public int getResumeTime() {
+        return resumeTimerSeconds;
+    }
+
 
 
     @Override
@@ -81,6 +118,29 @@ public class SessionTimer extends BukkitRunnable {
 
             timerSeconds--;
         }
+
+
+        if (resumeTimerRunning) {
+            if (resumeTimerSeconds <= 10 && resumeTimerSeconds > 3) {
+                session.playSound(Sound.NOTE_STICKS, 0.5f, 1, true);
+            }
+
+            if (resumeTimerSeconds == 10) {
+                session.broadcastTitle("", "&a&l" + resumeTimerSeconds + " &7seconds till the game continues!", 30, 5, 5, true);
+                session.startCountdown();
+            } else if (resumeTimerSeconds == 5) {
+                session.broadcastTitle("", "&a&l" + resumeTimerSeconds + " &7seconds till the game continues!", 30, 0, 5, true);
+            } else if (resumeTimerSeconds <= 3 && resumeTimerSeconds > 0) {
+                session.broadcastTitle("&a&l" + resumeTimerSeconds, "&7" + messages[resumeTimerSeconds - 1], 18, 0, 1, true);
+                session.playSound(Sound.NOTE_PLING, 0.8f, 2, true);
+            } else if (resumeTimerSeconds == 0) {
+                session.playSound(Sound.WITHER_SPAWN, 0.8f, 2, true);
+                session.resume();
+            }
+
+            resumeTimerSeconds--;
+        }
+
 
         if (session.isStarted()) {
             int secondsLeft = session.getMaxTime() - ((int)(System.currentTimeMillis() / 1000) - (int)(startTime / 1000));
