@@ -1,14 +1,17 @@
 package com.clashwars.events.events;
 
+import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.cwcore.packet.Title;
 import com.clashwars.cwcore.utils.CWUtil;
 import com.clashwars.events.Events;
 import com.clashwars.events.maps.EventMap;
 import com.clashwars.events.player.CWPlayer;
 import com.clashwars.events.runnables.SessionTimer;
+import com.clashwars.events.util.Util;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,13 +41,13 @@ public class GameSession {
         this.data = data;
 
         map = events.mm.getMap(getType(), getMapName());
+        map.validateMap();
         event = getType().getEventClass();
 
-        //Add back all players when session is loaded from config.
         if (event == null || map == null || !map.isValid() || map.isClosed()) {
             setState(State.CLOSED);
         } else {
-            timer = new SessionTimer(session);
+            timer = new SessionTimer(getID());
 
             if (loadedFromConfig) {
                 setState(State.ON_HOLD);
@@ -60,6 +63,7 @@ public class GameSession {
                 setState(State.OPENED);
             }
         }
+        Util.updateSign(map, session);
         save();
     }
 
@@ -87,7 +91,11 @@ public class GameSession {
             return JoinType.ENDED;
         }
 
+        CWPlayer cwp = events.pm.getPlayer(player);
         if (isStarted()) {
+            if (cwp.inSession()) {
+                return JoinType.IN_GAME;
+            }
             return JoinType.SPECTATE;
         }
 
@@ -95,8 +103,15 @@ public class GameSession {
             if (hasPlayer(player.getUniqueId(), true, true, true)) {
                 return JoinType.JOIN_BACK;
             } else {
+                if (cwp.inSession()) {
+                    return JoinType.IN_GAME;
+                }
                 return JoinType.SPECTATE;
             }
+        }
+
+        if (cwp.inSession()) {
+            return JoinType.IN_GAME;
         }
 
         //Check if there is space to join.
@@ -111,7 +126,11 @@ public class GameSession {
             }
         }
 
-        return JoinType.JOIN;
+        if (isCountdown()) {
+            return JoinType.JOIN;
+        } else {
+            return JoinType.QUEUE;
+        }
     }
 
     /**
@@ -133,17 +152,21 @@ public class GameSession {
                 }
             } else {
                addSpectator(uuid);
-               broadcast("&6&l+&7" + player.getDisplayName() + " &8(&3&lS&8)", true);
+               broadcast("&6&l+&3" + player.getDisplayName() + " &8(&d&lS&8)", true);
             }
 
             //If all players (expect spectators) join back start the game again.
             if (getAllPlayers(false).size() == getAllOnlinePlayers(false).size()) {
-                //TODO: Start game back up.
+                broadcast("&6&lAll players have joined back!", true);
+                resume();
             }
         } else {
+            if (hasPlayer(uuid, true, true, true)) {
+                return;
+            }
             if (isStarted()) {
                 addSpectator(uuid);
-                broadcast("&6&l+&7" + player.getDisplayName() + " &8(&3&lS&8)", true);
+                broadcast("&6&l+&3" + player.getDisplayName() + " &8(&d&lS&8)", true);
             } else if (player.hasPermission("events.vip") && getVipPlayerSize() < map.getVipSpots()) {
                 addVip(uuid);
                 broadcast("&6&l+&3" + player.getDisplayName(), true);
@@ -152,16 +175,27 @@ public class GameSession {
                 broadcast("&6&l+&3" + player.getDisplayName(), true);
             }
 
-            if (isOpened()) {
-                if (getPlayerCount(false) >= map.getMaxPlayers()) {
-                    //If game is filled up (max players) set the timer to 10.
-                    timer.setTimeRemaining(10);
-                } else if (getPlayerCount(false) >= map.getMinPlayers()) {
-                    //If game has enough players start the countdown timer.
-                    timer.startTimer();
+            //Start the countdown if enough players have joined.
+            if (isJoinable()) {
+                if (!isCountdown() && getPlayerCount(false) >= map.getMaxPlayers()) {
+                   //Force start the 10 second countdown if max players joined.
+                    if (!timer.isCountdownTimerRunning()) {
+                        timer.startCountdownTimer(10);
+                    } else {
+                        timer.setCountdownTimeRemaining(10);
+                    }
+                } else if (!timer.isCountdownTimerRunning() && getPlayerCount(false) >= map.getMinPlayers()) {
+                    //If the minimum amount of players have joined start/resume the 30 second countdown.
+                    if (isCountdown()) {
+                        timer.startCountdownTimer(10);
+                    } else {
+                        timer.startCountdownTimer(30);
+                    }
                 }
             }
         }
+        Util.updateSign(map, session);
+        save();
     }
 
     /** Remove the given player from this session. */
@@ -178,20 +212,20 @@ public class GameSession {
             broadcast("&4&l-&7" + player.getDisplayName(), true);
         } else if (hasSpectator(uuid)) {
             removeSpectator(uuid);
-            broadcast("&4&l-&7" + player.getDisplayName()  + " &8(&cS&8)", true);
+            broadcast("&4&l-&7" + player.getDisplayName()  + " &8(&dS&8)", true);
         }
 
-        if (isOpened()) {
+        if (isJoinable()) {
             if (getPlayerCount(false) <= 0) {
                 //If no players left remove the session.
-                //TODO: Remove session
+                delete();
             } if (getPlayerCount(false) < map.getMinPlayers()) {
                 //If not enough players anymore stop the timer.
-                timer.stopTimer();
-                broadcast("&c&lThere aren't enough players to start the game anymore!", true);
-                broadcast("&cPlease wait for more players to join again.", true);
+                stopCountdown();
             }
         }
+        Util.updateSign(map, session);
+        save();
     }
 
 
@@ -199,15 +233,76 @@ public class GameSession {
     //======== Session State Management ========
     //==========================================
 
-    //TODO: Start session
+    /** Open the session for players to join. */
+    public void open() {
+        setState(State.OPENED);
+    }
 
-    //TODO: End session
+    /** Start the 10 second countdown and teleport all players to the map. */
+    public void startCountdown() {
+        setState(State.COUNTDOWN);
+        //TODO: Teleport players to map.
+        //TODO: Calculate randomized game modfiers.
+    }
 
-    //TODO: Open/Close session
+    /** Stop the countdown timer */
+    public void stopCountdown() {
+        timer.stopCountdownTimer();
+        //Do it silent during the 30 to 10 second timer as lots of people will be joining/leaving.
+        if (isCountdown()) {
+            broadcast("&c&lThere aren't enough players to start the game anymore!", true);
+            broadcast("&cPlease wait for more players to join again.", true);
+        }
+    }
 
-    //TODO: Reset/Delete session
+    /** Start the game. */
+    public void start() {
+        setState(State.STARTED);
+        broadcast("&6&lThe game has &a&lstarted&6&l!", true);
+    }
 
-    //TODO: Resume session (after put on hold)
+    /** End the game with the specified winner(s). (can be null for no winners) */
+    public void end(List<UUID> winners) {
+        setState(State.ENDED);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                reset();
+            }
+        }.runTaskLater(events, 100);
+    }
+
+    /** Force end the game without any winners and no stats saved. */
+    public void forceEnd() {
+        end(null);
+    }
+
+    /** Reset the game/map. */
+    public void reset() {
+        setState(State.RESETTING);
+        broadcast("&6&lThe map is resetting!", true);
+        for (Player player : getAllOnlinePlayers(true)) {
+            leave(player);
+        }
+
+        delete(); //TODO: This is temporary.
+    }
+
+    /** Delete the session so a new session can be opened for this map */
+    public void delete() {
+        timer.stopCountdownTimer();
+        for (Player player : getAllOnlinePlayers(true)) {
+            leave(player);
+        }
+        Util.updateSign(map, null);
+        events.sm.deleteSession(getID());
+    }
+
+    /** Resume the session after it's put on hold. */
+    public void resume() {
+        setState(State.STARTED);
+        broadcast("&6The game has been &a&lresumed&6!", true);
+    }
 
 
 
@@ -365,7 +460,7 @@ public class GameSession {
     }
     /** Add a Spectator player to this session */
     public void addSpectator(UUID player) {
-        data.addVip(player);
+        data.addSpectator(player);
     }
     /** Remove a Spectator player from this session */
     public void removeSpectator(UUID player) {
@@ -390,11 +485,22 @@ public class GameSession {
     /** Set the game state of this session */
     public void setState(State state) {
         data.setState(state);
+        Util.updateSign(map, session);
     }
 
     /** Returns true if the session is opened */
     public boolean isOpened() {
         return getState() == State.OPENED;
+    }
+
+    /** Returns true if the sessions 10s countdown has start */
+    public boolean isCountdown() {
+        return getState() == State.COUNTDOWN;
+    }
+
+    /** Returns true if the session is opened */
+    public boolean isJoinable() {
+        return getState() == State.OPENED || getState() == State.COUNTDOWN;
     }
 
     /** Returns true if the session is started */
@@ -461,6 +567,11 @@ public class GameSession {
     /** Get the time in seconds the session can run for max */
     public int getMaxTime() {
         return maxTime;
+    }
+
+    /** Get the session timer */
+    public SessionTimer getTimer() {
+        return timer;
     }
 
     /** Save the session to config */
