@@ -3,6 +3,7 @@ package com.clashwars.events.player;
 public class PlayerData {
 
     private int sessionID = -1;
+    private boolean spectating = false;
 
     public PlayerData() {
         //--
@@ -19,5 +20,12 @@ public class PlayerData {
     }
     public void setSessionID(int sessionID) {
         this.sessionID = sessionID;
+    }
+
+    public boolean isSpectating() {
+        return spectating;
+    }
+    public void setSpectating(boolean spectating) {
+        this.spectating = spectating;
     }
 }

@@ -26,8 +26,6 @@ public class CWPlayer {
     private UUID uuid;
     private PlayerData data;
 
-    private GameSession session;
-
     private EventType selectedEvent;
     private String selectedMap;
 
@@ -72,24 +70,35 @@ public class CWPlayer {
 
     /** Returns true if the player is in a GameSession */
     public boolean inSession() {
-        return session != null;
+        return data.getSessionID() >= 0;
     }
 
     /** Get the game session from this users. Returns null if the player has no session */
     public GameSession getSession() {
-        return session;
+        return events.sm.getSession(data.getSessionID());
     }
 
     /** Set the player his session */
     public void setSession(GameSession session) {
-        this.session = session;
         data.setSessionID(session.getID());
+        savePlayer();
     }
 
     /** Remove the player his session */
     public void removeSession() {
-        session = null;
         data.setSessionID(-1);
+        savePlayer();
+    }
+
+    /** Returns true if the player is spectating the current session. Always check first if the player is in a session! */
+    public boolean isSpectating() {
+        return data.isSpectating();
+    }
+
+    /** Set if the player is spectating the session or not */
+    public void setSpectating(boolean spectating) {
+        data.setSpectating(spectating);
+        savePlayer();
     }
 
 
