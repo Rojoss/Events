@@ -6,6 +6,7 @@ import com.clashwars.events.Events;
 import com.clashwars.events.config.data.PlayerCfg;
 import com.clashwars.events.events.EventType;
 import com.clashwars.events.events.GameSession;
+import com.clashwars.events.runnables.RelogRunnable;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
@@ -25,6 +26,8 @@ public class CWPlayer {
 
     private UUID uuid;
     private PlayerData data;
+
+    private RelogRunnable relogRunnable;
 
     private EventType selectedEvent;
     private String selectedMap;
@@ -55,6 +58,7 @@ public class CWPlayer {
     /** Reset all data from this player. */
     public void resetData() {
         data.reset();
+        savePlayer();
     }
 
     /** Returns the PlayerData from this player for all config setings/data. */
@@ -110,6 +114,24 @@ public class CWPlayer {
     public void setTeleportID(int teleportID) {
         data.setTeleportID(teleportID);
         savePlayer();
+    }
+
+
+    public void createRelogRunnable() {
+        if (!hasRelogRunnable()) {
+            relogRunnable = new RelogRunnable(this);
+        }
+    }
+
+    public void removeRelogRunnable() {
+        if (hasRelogRunnable()) {
+            relogRunnable.cancel();
+            relogRunnable = null;
+        }
+    }
+
+    public boolean hasRelogRunnable() {
+        return relogRunnable != null;
     }
 
 

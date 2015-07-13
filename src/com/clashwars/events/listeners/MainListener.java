@@ -2,12 +2,14 @@ package com.clashwars.events.listeners;
 
 import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.cwcore.events.DelayedPlayerInteractEvent;
+import com.clashwars.cwcore.events.PlayerLeaveEvent;
 import com.clashwars.cwcore.utils.CWUtil;
 import com.clashwars.events.Events;
 import com.clashwars.events.events.EventType;
 import com.clashwars.events.events.GameSession;
 import com.clashwars.events.events.JoinType;
 import com.clashwars.events.maps.EventMap;
+import com.clashwars.events.player.CWPlayer;
 import com.clashwars.events.util.Util;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -17,6 +19,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +30,57 @@ public class MainListener implements Listener {
 
     public MainListener(Events events) {
         this.events = events;
+    }
+
+
+    @EventHandler
+    private void playerLeave(PlayerLeaveEvent event) {
+        Player player = event.getPlayer();
+        CWPlayer cwp = events.pm.getPlayer(player);
+
+        GameSession session = cwp.getSession();
+        if (session == null) {
+            return;
+        }
+
+        //Logging off in a session but a session that isn't started. (Remove player from session)
+        if (!session.isStarted()) {
+            player.sendMessage(Util.formatMsg("&6You left the game!"));
+            session.leave(player);
+            return;
+        }
+
+        if (!cwp.isSpectating()) {
+            //Logging off in a session that started. (remove player after 10s timer if still online)
+            cwp.createRelogRunnable();
+        }
+    }
+
+    @EventHandler
+    private void playerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        CWPlayer cwp = events.pm.getPlayer(player);
+
+        cwp.removeRelogRunnable();
+
+        GameSession session = cwp.getSession();
+        if (cwp.inSession() && session == null) {
+            player.sendMessage(Util.formatMsg("&cThe game you were playing has ended while you where offline!"));
+            cwp.reset();
+            cwp.resetData();
+            player.teleport(player.getWorld().getSpawnLocation());
+            return;
+        } else if (cwp.inSession() && session != null && !session.hasPlayer(player.getUniqueId(), true, true, true)) {
+            player.sendMessage(Util.formatMsg("&cYou have been removed from the game because you logged off for more than 10 seconds."));
+            cwp.reset();
+            cwp.resetData();
+            player.teleport(player.getWorld().getSpawnLocation());
+            return;
+        }
+
+        if (session != null) {
+            player.sendMessage(Util.formatMsg("&6Welcome back to the game!"));
+        }
     }
 
     @EventHandler
