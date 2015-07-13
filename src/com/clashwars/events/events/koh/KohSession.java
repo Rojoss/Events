@@ -1,7 +1,5 @@
 package com.clashwars.events.events.koh;
 
-import com.clashwars.cwcore.debug.Debug;
-import com.clashwars.events.events.EventType;
 import com.clashwars.events.events.GameSession;
 import com.clashwars.events.events.SessionData;
 import org.bukkit.entity.Player;
@@ -16,6 +14,7 @@ public class KohSession extends GameSession {
 
     @Override
     public void teleportPlayer(Player player) {
-        player.teleport(getMap().getMultiLoc("spawn", 1));
+        super.teleportPlayer(player);
+        //TODO: Freeze player
     }
 }

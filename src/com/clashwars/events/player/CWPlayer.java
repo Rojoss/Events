@@ -101,6 +101,17 @@ public class CWPlayer {
         savePlayer();
     }
 
+    /** Get the player his teleport ID. Can also be seen as a game user ID however it may not be unique if there aren't enough teleport spots. */
+    public int getTeleportID() {
+        return data.getTeleportID();
+    }
+
+    /** Set the player his teleport ID. */
+    public void setTeleportID(int teleportID) {
+        data.setTeleportID(teleportID);
+        savePlayer();
+    }
+
 
     public EventType getSelectedEvent() {
         return selectedEvent;

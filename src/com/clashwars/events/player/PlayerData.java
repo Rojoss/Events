@@ -4,6 +4,7 @@ public class PlayerData {
 
     private int sessionID = -1;
     private boolean spectating = false;
+    private int teleportID = -1;
 
     public PlayerData() {
         //--
@@ -12,6 +13,7 @@ public class PlayerData {
     /** Reset all the data values back to default. */
     public void reset() {
         sessionID = -1;
+        teleportID = -1;
     }
 
 
@@ -27,5 +29,13 @@ public class PlayerData {
     }
     public void setSpectating(boolean spectating) {
         this.spectating = spectating;
+    }
+
+
+    public int getTeleportID() {
+        return teleportID;
+    }
+    public void setTeleportID(int teleportID) {
+        this.teleportID = teleportID;
     }
 }

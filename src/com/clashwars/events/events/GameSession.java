@@ -1,6 +1,5 @@
 package com.clashwars.events.events;
 
-import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.cwcore.packet.Title;
 import com.clashwars.cwcore.utils.CWUtil;
 import com.clashwars.events.Events;
@@ -8,6 +7,8 @@ import com.clashwars.events.maps.EventMap;
 import com.clashwars.events.player.CWPlayer;
 import com.clashwars.events.runnables.SessionTimer;
 import com.clashwars.events.util.Util;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -28,6 +29,7 @@ public class GameSession {
     private BaseEvent event;
     private EventMap map;
 
+    List<Location> spawnLocs = new ArrayList<Location>();
     protected int maxTime = 300; /** Time in seconds should be overwritten to modify */
 
 
@@ -48,6 +50,7 @@ public class GameSession {
             setState(State.CLOSED);
         } else {
             timer = new SessionTimer(getID());
+            spawnLocs = new ArrayList<Location>(getMap().getMultiLocs("spawn").values());
 
             if (loadedFromConfig) {
                 setState(State.ON_HOLD);
@@ -151,10 +154,16 @@ public class GameSession {
                 } else {
                     broadcast("&6&l+&3" + player.getDisplayName(), true);
                 }
+                if (session.isCountdown()) {
+                    teleportPlayer(player);
+                }
             } else {
                addSpectator(uuid);
                 cwp.setSpectating(true);
                 broadcast("&6&l+&3" + player.getDisplayName() + " &8(&d&lS&8)", true);
+                if (session.isCountdown() || session.isStarted()) {
+                    teleportPlayer(player);
+                }
             }
 
             //If all players (expect spectators) join back start the game again.
@@ -178,6 +187,10 @@ public class GameSession {
                 cwp.setSpectating(false);
                 addPlayer(uuid);
                 broadcast("&6&l+&3" + player.getDisplayName(), true);
+            }
+
+            if (session.isCountdown() || session.isStarted()) {
+                teleportPlayer(player);
             }
 
             //Start the countdown if enough players have joined.
@@ -208,6 +221,10 @@ public class GameSession {
         UUID uuid = player.getUniqueId();
         CWPlayer cwp = events.pm.getPlayer(player);
         cwp.removeSession();
+        cwp.reset();
+        cwp.resetData();
+
+        player.teleport(player.getWorld().getSpawnLocation()); //TODO: Have a location for each event where players tp back to.
 
         if (hasPlayer(uuid)) {
             removePlayer(uuid);
@@ -318,7 +335,27 @@ public class GameSession {
     //==========================================
 
     public void teleportPlayer(Player player) {
-        player.teleport(map.getCuboid("map").getCenterLoc());
+        CWPlayer cwp = events.pm.getPlayer(player);
+        CWUtil.resetPlayer(player, GameMode.SURVIVAL);
+        if (cwp.isSpectating() || spawnLocs.size() <= 0) {
+            player.setAllowFlight(true);
+            player.setFlying(true);
+            player.teleport(getMap().getCuboid("map").getCenterLoc());
+            cwp.setTeleportID(-1);
+            //TODO: Load spectator inventory.
+        } else {
+            if (cwp.getTeleportID() >= 0 && spawnLocs.size() > cwp.getTeleportID()) {
+                player.teleport(spawnLocs.get(cwp.getTeleportID()));
+            } else {
+                player.teleport(spawnLocs.get(data.getTeleportID()));
+                cwp.setTeleportID(data.getTeleportID());
+                data.setTeleportID(data.getTeleportID() + 1);
+                if (data.getTeleportID() >= spawnLocs.size()) {
+                    data.setTeleportID(0);
+                }
+            }
+            //TODO: Load game inventory
+        }
     }
 
     /** Broadcast a message to all players in the session */

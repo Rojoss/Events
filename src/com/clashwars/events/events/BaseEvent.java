@@ -19,7 +19,7 @@ public class BaseEvent implements Listener {
     public BaseEvent() {
         setupOptions.add(new SetupOption(SetupType.CUBOID, "map", "A cuboid that contains the entire map."));
         setupOptions.add(new SetupOption(SetupType.BLOCK_LOC, "sign", "The sign to join the map."));
-
+        setupOptions.add(new SetupOption(SetupType.MULTI_LOC, "spawn", "Location(s) where players (re)spawn."));
     }
 
     /** Get a list of SetupOption(s) that need to be specified for map validation */

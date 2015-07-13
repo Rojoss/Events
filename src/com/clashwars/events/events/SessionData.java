@@ -12,6 +12,7 @@ public class SessionData {
     private String mapName;
     private State state = State.CLOSED;
     private Long startTime;
+    private int teleportID = 0;
 
     private List<String> players = new ArrayList<String>();
     private List<String> vipPlayers = new ArrayList<String>();
@@ -62,6 +63,13 @@ public class SessionData {
     }
     public void setStartTime(Long startTime) {
         this.startTime = startTime;
+    }
+
+    public int getTeleportID() {
+        return teleportID;
+    }
+    public void setTeleportID(int teleportID) {
+        this.teleportID = teleportID;
     }
 
     public HashMap<String, String> getEventData() {
