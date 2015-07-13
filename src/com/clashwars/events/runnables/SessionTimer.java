@@ -3,6 +3,7 @@ package com.clashwars.events.runnables;
 import com.clashwars.events.Events;
 import com.clashwars.events.StartMessages;
 import com.clashwars.events.events.GameSession;
+import org.bukkit.Sound;
 import org.bukkit.scheduler.BukkitRunnable;
 
 /**
@@ -11,59 +12,71 @@ import org.bukkit.scheduler.BukkitRunnable;
  */
 public class SessionTimer extends BukkitRunnable {
 
-    private GameSession session;
+    private int sessionID;
     private Long startTime;
 
     private String[] messages = StartMessages.getMessages();
     private boolean timerRunning = false;
     private int timerSeconds = -1;
 
-    public SessionTimer(GameSession session) {
-        this.session = session;
+    public SessionTimer(int sessionID) {
+        this.sessionID = sessionID;
+        runTaskTimer(Events.inst(), 0, 20);
     }
 
 
-    /** Start the timer if there is no timer running */
-    public void startTimer() {
-        if (!isTimerRunning()) {
-            timerSeconds = 30;
-            runTaskTimer(Events.inst(), 0, 20);
+    /** Start the countdown timer if there is no timer running */
+    public void startCountdownTimer(int seconds) {
+        if (!isCountdownTimerRunning()) {
+            timerSeconds = seconds;
+            timerRunning = true;
         }
     }
 
-    /** Stop the timer if there is a timer running */
-    public void stopTimer() {
-        if (isTimerRunning()) {
+    /** Stop the countdown timer if there is a timer running */
+    public void stopCountdownTimer() {
+        if (isCountdownTimerRunning()) {
             timerRunning = false;
             timerSeconds = -1;
-            cancel();
         }
     }
 
     /** Sets the time left on the timer. Only if it's lower than the current time left. */
-    public void setTimeRemaining(int seconds) {
+    public void setCountdownTimeRemaining(int seconds) {
         timerSeconds = Math.min(timerSeconds, seconds);
     }
 
-    public boolean isTimerRunning() {
+    /** Returns true if the countdown timer has started */
+    public boolean isCountdownTimerRunning() {
         return timerRunning;
     }
 
 
     @Override
     public void run() {
+        GameSession session = Events.inst().sm.getSession(sessionID);
+        if (session == null) {
+            cancel();
+            return;
+        }
+
         if (timerRunning) {
-            if (timerSeconds == 5) {
-                //TODO: Calculated randomized game modfiers.
+            if (timerSeconds <= 10 && timerSeconds > 3) {
+                session.playSound(Sound.NOTE_STICKS, 0.5f, 1, true);
             }
 
-            if (timerSeconds == 0) {
-                startTime = System.currentTimeMillis();
-                //TODO: Start game.
+            if (timerSeconds == 10) {
+                session.broadcastTitle("", "&a&l" + timerSeconds + " &7seconds till the game starts!", 30, 5, 5, true);
+                session.startCountdown();
+            } else if (timerSeconds == 5) {
+                session.broadcastTitle("", "&a&l" + timerSeconds + " &7seconds till the game starts!", 30, 0, 5, true);
             } else if (timerSeconds <= 3 && timerSeconds > 0) {
-                session.broadcastTitle("&a&l" + timerSeconds, "&7" + messages[timerSeconds - 1], 15, 0, 3, true);
-            } else if (timerSeconds % 5 == 0) {
-                session.broadcastTitle("", "&a&l" + timerSeconds + " &7seconds till the game starts!", 10, 0, 3, true);
+                session.broadcastTitle("&a&l" + timerSeconds, "&7" + messages[timerSeconds - 1], 18, 0, 1, true);
+                session.playSound(Sound.NOTE_PLING, 0.8f, 2, true);
+            } else if (timerSeconds == 0) {
+                startTime = System.currentTimeMillis();
+                session.playSound(Sound.WITHER_SPAWN, 0.8f, 2, true);
+                session.start();
             }
 
             timerSeconds--;
@@ -72,13 +85,13 @@ public class SessionTimer extends BukkitRunnable {
         if (session.isStarted()) {
             int secondsLeft = session.getMaxTime() - ((int)(System.currentTimeMillis() / 1000) - (int)(startTime / 1000));
             if (secondsLeft <= 0) {
-                //TODO: Force end the game
+                session.forceEnd();
             } else if (secondsLeft == 10) {
-                session.broadcastTitle("", "&4&l" + secondsLeft + " &cseconds till the game ends!", 15, 0, 3, true);
+                session.broadcastTitle("", "&4&l" + secondsLeft + " &cseconds till the game ends!", 30, 0, 5, true);
             } else if (secondsLeft == 30) {
-                session.broadcastTitle("", "&4&l" + secondsLeft + " &cseconds till the game ends!", 15, 0, 3, true);
+                session.broadcastTitle("", "&4&l" + secondsLeft + " &cseconds till the game ends!", 30, 0, 5, true);
             } else if (secondsLeft == 60) {
-                session.broadcastTitle("", "&4&l1 minute till the game ends!", 15, 0, 3, true);
+                session.broadcastTitle("", "&4&l1 minute till the game ends!", 30, 0, 5, true);
             }
         }
     }
