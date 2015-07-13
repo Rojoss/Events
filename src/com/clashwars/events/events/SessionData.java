@@ -13,9 +13,9 @@ public class SessionData {
     private State state = State.CLOSED;
     private Long startTime;
 
-    private List<UUID> players = new ArrayList<UUID>();
-    private List<UUID> vipPlayers = new ArrayList<UUID>();
-    private List<UUID> spectators = new ArrayList<UUID>();
+    private List<String> players = new ArrayList<String>();
+    private List<String> vipPlayers = new ArrayList<String>();
+    private List<String> spectators = new ArrayList<String>();
 
     private HashMap<String, String> eventData = new HashMap<String, String>();
 
@@ -81,41 +81,59 @@ public class SessionData {
     }
 
     public List<UUID> getPlayers() {
-        return players;
+        return stringListToUUID(players);
     }
     public void setPlayers(List<UUID> players) {
-        this.players = players;
+        this.players = uuidListToString(players);
     }
     public void addPlayer(UUID player) {
-        players.add(player);
+        players.add(player.toString());
     }
     public void removePlayer(UUID player) {
-        players.remove(player);
+        players.remove(player.toString());
     }
 
     public List<UUID> getVipPlayers() {
-        return vipPlayers;
+        return stringListToUUID(vipPlayers);
     }
     public void setVipPlayers(List<UUID> vipPlayers) {
-        this.vipPlayers = vipPlayers;
+        this.vipPlayers = uuidListToString(vipPlayers);
     }
     public void addVip(UUID player) {
-        players.add(player);
+        vipPlayers.add(player.toString());
     }
     public void removeVip(UUID player) {
-        players.remove(player);
+        vipPlayers.remove(player.toString());
     }
 
     public List<UUID> getSpectators() {
-        return spectators;
+        return stringListToUUID(spectators);
     }
     public void setSpectators(List<UUID> spectators) {
-        this.spectators = spectators;
+        this.spectators = uuidListToString(spectators);
     }
     public void addSpectator(UUID player) {
-        players.add(player);
+        spectators.add(player.toString());
     }
     public void removeSpectator(UUID player) {
-        players.remove(player);
+        spectators.remove(player.toString());
+    }
+
+
+
+    private List<UUID> stringListToUUID(List<String> stringList) {
+        List<UUID> uuidList = new ArrayList<UUID>();
+        for (String uuid : stringList) {
+            uuidList.add(UUID.fromString(uuid));
+        }
+        return uuidList;
+    }
+
+    private List<String> uuidListToString(List<UUID> uuidList) {
+        List<String> stringList = new ArrayList<String>();
+        for (UUID uuid : uuidList) {
+            stringList.add(uuid.toString());
+        }
+        return stringList;
     }
 }
