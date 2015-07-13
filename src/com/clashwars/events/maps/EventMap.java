@@ -157,7 +157,7 @@ public class EventMap {
     /** Get a specific location from a multi loc location. */
     public Location getMultiLoc(String name, int ID) {
         if (data.getLocs().containsKey(name + "_" + ID)) {
-            data.getLocs().get(name + "_" + ID);
+            return data.getLocs().get(name + "_" + ID);
         }
         return null;
     }
