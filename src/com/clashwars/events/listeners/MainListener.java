@@ -66,15 +66,11 @@ public class MainListener implements Listener {
         GameSession session = cwp.getSession();
         if (cwp.inSession() && session == null) {
             player.sendMessage(Util.formatMsg("&cThe game you were playing has ended while you where offline!"));
-            cwp.reset();
-            cwp.resetData();
-            player.teleport(player.getWorld().getSpawnLocation());
+            Util.teleportLobby(player);
             return;
         } else if (cwp.inSession() && session != null && !session.hasPlayer(player.getUniqueId(), true, true, true)) {
             player.sendMessage(Util.formatMsg("&cYou have been removed from the game because you logged off for more than 10 seconds."));
-            cwp.reset();
-            cwp.resetData();
-            player.teleport(player.getWorld().getSpawnLocation());
+            Util.teleportLobby(player);
             return;
         }
 

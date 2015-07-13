@@ -1,16 +1,22 @@
 package com.clashwars.events.util;
 
+import com.clashwars.cwcore.helpers.CWItem;
 import com.clashwars.cwcore.utils.CWUtil;
+import com.clashwars.events.Events;
 import com.clashwars.events.events.GameSession;
 import com.clashwars.events.events.State;
 import com.clashwars.events.maps.EventMap;
+import com.clashwars.events.player.CWPlayer;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.entity.Player;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 
 public class Util {
 
@@ -47,5 +53,36 @@ public class Util {
             sign.setLine(3, CWUtil.integrateColor(session.getState().getSignText()));
         }
         sign.update(true);
+    }
+
+
+    /** Equip the given list with CWItems on the player. It will set armor in the proper slots if the item is armor. */
+    public static void equipItems(Player player, List<CWItem> items) {
+        for (CWItem item : items) {
+            if (item.getType().toString().endsWith("_HELMET")) {
+                player.getInventory().setHelmet(item);
+            } else if (item.getType().toString().endsWith("_CHESTPLATE")) {
+                player.getInventory().setChestplate(item);
+            } else if (item.getType().toString().endsWith("_LEGGINGS")) {
+                player.getInventory().setLeggings(item);
+            } else if (item.getType().toString().endsWith("_BOOTS")) {
+                player.getInventory().setBoots(item);
+            } else {
+                item.giveToPlayer(player);
+            }
+        }
+    }
+
+    /** Teleport the specified player back to the lobby and give the lobby equipment */
+    public static void teleportLobby(Player player) {
+        CWPlayer cwp = Events.inst().pm.getPlayer(player);
+        cwp.reset();
+        cwp.resetData();
+
+        //TODO: Teleport player to last game sign area.
+        player.teleport(player.getWorld().getSpawnLocation());
+
+        CWUtil.resetPlayer(player, GameMode.SURVIVAL);
+        Equipment.LOBBY.equip(player);
     }
 }

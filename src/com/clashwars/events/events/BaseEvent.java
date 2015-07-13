@@ -1,5 +1,6 @@
 package com.clashwars.events.events;
 
+import com.clashwars.cwcore.helpers.CWItem;
 import com.clashwars.events.setup.SetupOption;
 import com.clashwars.events.setup.SetupType;
 import org.bukkit.event.Listener;
@@ -15,6 +16,7 @@ import java.util.List;
 public class BaseEvent implements Listener {
 
     protected List<SetupOption> setupOptions = new ArrayList<SetupOption>(); /** Event specific setup options should be added in each event class. */
+    protected List<CWItem> equipment = new ArrayList<CWItem>();
 
     public BaseEvent() {
         setupOptions.add(new SetupOption(SetupType.CUBOID, "map", "A cuboid that contains the entire map."));
@@ -45,6 +47,15 @@ public class BaseEvent implements Listener {
             }
         }
         return null;
+    }
+
+    /**
+     * Get a list of CWItem's with all equipment for the specified session.
+     * If no session is specified should return all items.
+     * If the session is specified the equipment can be based on the game modifiers.
+     */
+    public List<CWItem> getEquipment(GameSession session) {
+        return new ArrayList<CWItem>();
     }
 
 }

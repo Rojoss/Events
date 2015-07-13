@@ -7,6 +7,7 @@ import com.clashwars.events.Events;
 import com.clashwars.events.maps.EventMap;
 import com.clashwars.events.player.CWPlayer;
 import com.clashwars.events.runnables.SessionTimer;
+import com.clashwars.events.util.Equipment;
 import com.clashwars.events.util.Util;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -235,12 +236,7 @@ public class GameSession {
         String playerName = player.getName();
         if (player.isOnline()) {
             playerName = ((Player)player).getDisplayName();
-
-            cwp.removeSession();
-            cwp.reset();
-            cwp.resetData();
-
-            ((Player)player).teleport(((Player)player).getWorld().getSpawnLocation()); //TODO: Have a location for each event where players tp back to.
+            Util.teleportLobby(((Player)player));
         }
 
         if (hasPlayer(uuid)) {
@@ -372,7 +368,7 @@ public class GameSession {
             player.setFlying(true);
             player.teleport(getMap().getCuboid("map").getCenterLoc());
             cwp.setTeleportID(-1);
-            //TODO: Load spectator inventory.
+            Equipment.SPECTATOR.equip(player);
         } else {
             if (cwp.getTeleportID() >= 0 && spawnLocs.size() > cwp.getTeleportID()) {
                 player.teleport(spawnLocs.get(cwp.getTeleportID()));
@@ -384,7 +380,7 @@ public class GameSession {
                     data.setTeleportID(0);
                 }
             }
-            //TODO: Load game inventory
+            Util.equipItems(player, event.getEquipment(this));
         }
     }
 
