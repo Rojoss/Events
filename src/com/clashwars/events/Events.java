@@ -8,6 +8,7 @@ import com.clashwars.events.config.PluginCfg;
 import com.clashwars.events.config.data.SessionCfg;
 import com.clashwars.events.events.EventType;
 import com.clashwars.events.events.SessionManager;
+import com.clashwars.events.listeners.MainListener;
 import com.clashwars.events.maps.MapManager;
 import com.clashwars.events.player.PlayerManager;
 import com.google.gson.Gson;
@@ -66,10 +67,12 @@ public class Events extends JavaPlugin {
         sessionCfg = new SessionCfg("plugins/Events/data/Sessions.yml");
         sessionCfg.load();
 
+        StartMessages.populate();
+
         pm = new PlayerManager(this);
         em = new EventManager(this);
-        sm = new SessionManager(this);
         mm = new MapManager(this);
+        sm = new SessionManager(this);
 
         registerEvents();
 
@@ -87,7 +90,7 @@ public class Events extends JavaPlugin {
 
     private void registerEvents() {
         PluginManager pm = getServer().getPluginManager();
-        //pm.registerEvents(new MainEvents(this), this);
+        pm.registerEvents(new MainListener(this), this);
 
         EventType[] events = EventType.values();
         for (EventType event : events) {

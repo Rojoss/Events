@@ -12,7 +12,7 @@ public class StartMessages {
 
     private static List<StartMessage> startMessages = new ArrayList<StartMessage>();
 
-    public StartMessages() {
+    public static void populate() {
         startMessages.add(new StartMessage("Ready?", "Set...", "GO!"));
         startMessages.add(new StartMessage("Ready?", "Steady...", "GO!"));
         startMessages.add(new StartMessage("Lights...", "Camera...", "Action!"));
@@ -38,7 +38,7 @@ public class StartMessages {
         return CWUtil.random(startMessages).messages;
     }
 
-    public class StartMessage {
+    public static class StartMessage {
         String[] messages = new String[3];
 
         public StartMessage(String msg3, String msg2, String msg1) {
