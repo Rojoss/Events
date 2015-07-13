@@ -127,7 +127,6 @@ public class SessionTimer extends BukkitRunnable {
 
             if (resumeTimerSeconds == 10) {
                 session.broadcastTitle("", "&a&l" + resumeTimerSeconds + " &7seconds till the game continues!", 30, 5, 5, true);
-                session.startCountdown();
             } else if (resumeTimerSeconds == 5) {
                 session.broadcastTitle("", "&a&l" + resumeTimerSeconds + " &7seconds till the game continues!", 30, 0, 5, true);
             } else if (resumeTimerSeconds <= 3 && resumeTimerSeconds > 0) {

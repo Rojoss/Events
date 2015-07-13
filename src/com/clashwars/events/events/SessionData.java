@@ -1,9 +1,10 @@
 package com.clashwars.events.events;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import com.clashwars.cwcore.utils.CWUtil;
+import com.clashwars.events.modifiers.Modifier;
+import com.clashwars.events.modifiers.ModifierOption;
+
+import java.util.*;
 
 public class SessionData {
 
@@ -18,6 +19,7 @@ public class SessionData {
     private List<String> vipPlayers = new ArrayList<String>();
     private List<String> spectators = new ArrayList<String>();
 
+    private HashMap<String, String> modifierValues = new HashMap<String, String>();
     private HashMap<String, String> eventData = new HashMap<String, String>();
 
     public SessionData() {
@@ -71,6 +73,24 @@ public class SessionData {
     public void setTeleportID(int teleportID) {
         this.teleportID = teleportID;
     }
+
+    public HashMap<Modifier, ModifierOption> getModifierValues() {
+        HashMap<Modifier, ModifierOption> map = new HashMap<Modifier, ModifierOption>();
+        for (Map.Entry<String, String> entry : modifierValues.entrySet()) {
+            Modifier modifier = Modifier.valueOf(entry.getKey());
+            map.put(modifier, modifier.getOptions()[CWUtil.getInt(entry.getValue())]);
+        }
+        return map;
+    }
+
+    public void setModifierValues(HashMap<Modifier, ModifierOption> options) {
+        HashMap<String, String> map = new HashMap<String, String>();
+        for (Map.Entry<Modifier, ModifierOption> entry : options.entrySet()) {
+            map.put(entry.getKey().toString(), Integer.toString(entry.getValue().ID));
+        }
+        modifierValues = map;
+    }
+
 
     public HashMap<String, String> getEventData() {
         return eventData;

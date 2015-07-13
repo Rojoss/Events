@@ -1,10 +1,11 @@
 package com.clashwars.events.events;
 
-import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.cwcore.packet.Title;
 import com.clashwars.cwcore.utils.CWUtil;
 import com.clashwars.events.Events;
 import com.clashwars.events.maps.EventMap;
+import com.clashwars.events.modifiers.Modifier;
+import com.clashwars.events.modifiers.ModifierOption;
 import com.clashwars.events.player.CWPlayer;
 import com.clashwars.events.runnables.SessionTimer;
 import com.clashwars.events.util.Equipment;
@@ -16,9 +17,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class GameSession {
 
@@ -203,6 +202,7 @@ public class GameSession {
 
             if (session.isCountdown() || session.isStarted()) {
                 teleportPlayer(player);
+                sendModifiersMessage(player, null);
             }
 
             //Start the countdown if enough players have joined.
@@ -281,10 +281,10 @@ public class GameSession {
     /** Start the 10 second countdown and teleport all players to the map. */
     public void startCountdown() {
         setState(State.COUNTDOWN);
+        calculateModifiers();
         for (Player player : getAllOnlinePlayers(true)) {
             teleportPlayer(player);
         }
-        //TODO: Calculate randomized game modfiers.
     }
 
     /** Stop the countdown timer */
@@ -598,6 +598,88 @@ public class GameSession {
         return getState() == State.RESETTING;
     }
 
+
+
+    //==========================================
+    //================ Modifiers ===============
+    //==========================================
+
+    /** Returns true if the modifier options have been set and false if not */
+    public boolean hasModifierOptions() {
+        return getModifierOptions().size() > 0;
+    }
+
+    /** Get a hasmap with all the modifiers and options */
+    public HashMap<Modifier, ModifierOption> getModifierOptions() {
+        return data.getModifierValues();
+    }
+
+    /** Get the modifier option for the specified modifier. Returns null if there is no option defined for the modifier. */
+    public ModifierOption getModifierOption(Modifier modifier) {
+        HashMap<Modifier, ModifierOption> options = data.getModifierValues();
+        if (options.isEmpty() || !options.containsKey(modifier)) {
+            return null;
+        }
+        return options.get(modifier);
+    }
+
+    /**
+     * Calculate all the modifiers.
+     * It has a 25% chance to be random based on the modifier value weights.
+     * If that doesn't happen it will set the value based on the players in the session their preferences.
+     */
+    private void calculateModifiers() {
+        HashMap<Modifier, ModifierOption> resultMap = new HashMap<Modifier, ModifierOption>();
+        for (Modifier modifier : event.getModifiers()) {
+            ModifierOption[] options = modifier.getOptions();
+
+            float totalWeight = 0.0f;
+            for (ModifierOption mo : options) {
+                totalWeight += mo.weight;
+            }
+
+            //25% chance to ignore player preferences and randomized only based on modifier weights.
+            if (CWUtil.randomFloat() <= 1f) {
+                double random = Math.random() * totalWeight;
+                for (ModifierOption mo : options) {
+                    random -= mo.weight;
+                    if (random <= 0.0d) {
+                        resultMap.put(modifier, mo);
+                        break;
+                    }
+                }
+                continue;
+            }
+
+            //Get the favourite preference of all the players.
+            //TODO: Do this...
+        }
+        data.setModifierValues(resultMap);
+        save();
+
+        List<Player> onlinePlayers = getAllOnlinePlayers(true);
+        for (Player player : onlinePlayers) {
+            sendModifiersMessage(player, resultMap);
+        }
+    }
+
+    /**
+     * Send a message with all modifier values to the specified player.
+     * The modifierOptions hashmap can be null but when sending to all players it should be provided.
+     * It won't send a message if the modifiers haven't been calculated.
+     */
+    public void sendModifiersMessage(Player player, HashMap<Modifier, ModifierOption> modifierOptions) {
+        if (modifierOptions == null) {
+            modifierOptions = getModifierOptions();
+        }
+        if (modifierOptions.size() <= 0) {
+            return;
+        }
+        player.sendMessage(CWUtil.integrateColor("&7&l----------- &4&lGAME MODIFIERS &7&l-----------"));
+        for (Map.Entry<Modifier, ModifierOption> entry : modifierOptions.entrySet()) {
+            player.sendMessage(CWUtil.integrateColor("&6" + CWUtil.capitalize(entry.getKey().toString().toLowerCase().split("_")[1]) + "&8: &7" + entry.getValue().name));
+        }
+    }
 
 
     //==========================================
