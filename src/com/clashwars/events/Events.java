@@ -72,7 +72,7 @@ public class Events extends JavaPlugin {
         pm = new PlayerManager(this);
         em = new EventManager(this);
         mm = new MapManager(this);
-        sm = new SessionManager(this);
+        new SessionManager(this);
 
         registerEvents();
 

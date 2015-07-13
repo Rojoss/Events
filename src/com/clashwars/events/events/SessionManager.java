@@ -27,6 +27,7 @@ public class SessionManager {
 
     public SessionManager(Events events) {
         this.events = events;
+        events.sm = this;
         sessionCfg = events.sessionCfg;
 
         //Load in sessions from config
@@ -69,13 +70,7 @@ public class SessionManager {
             session = new KohSession(data, true);
         }
 
-        if (session != null) {
-            if (session.getMap() != null && session.getMap().isValid() && !session.getMap().isClosed()) {
-                session.setState(State.ON_HOLD);
-            } else {
-                session.setState(State.CLOSED);
-            }
-        }
+        sessions.put(session.getID(), session);
         return session;
     }
 
