@@ -93,9 +93,17 @@ public class GameSession {
         board = CWBoard.get(map.getTag());
         board.init(false);
         board.addTeam("spectators","&d","","&dSpectators", false, true, NameTagVisibility.ALWAYS);
+        //TODO: Setup scoreboard if it's loaded from config.
 
         Util.updateSign(map, session);
         save();
+    }
+
+    public void unload() {
+        if (board != null) {
+            board.hide();
+            board.unregister();
+        }
     }
 
 
@@ -244,7 +252,9 @@ public class GameSession {
             }
         }
 
-        board.addPlayer(player);
+        if (board != null) {
+            board.addPlayer(player);
+        }
         Util.updateSign(map, session);
         save();
     }
@@ -271,7 +281,9 @@ public class GameSession {
             broadcast("&4&l-&7" + playerName  + " &8(&dS&8)", true);
         }
 
-        board.removePlayer(uuid);
+        if (board != null) {
+            board.removePlayer(uuid);
+        }
         Util.updateSign(map, session);
         save();
 
@@ -307,7 +319,9 @@ public class GameSession {
         for (Player player : getAllOnlinePlayers(true)) {
             teleportPlayer(player);
         }
-        board.show();
+        if (board != null) {
+            board.show();
+        }
     }
 
     /** Stop the countdown timer */
@@ -352,7 +366,6 @@ public class GameSession {
         setState(State.RESETTING);
         broadcast("&6&lThe map is resetting!", true);
 
-        board.hide();
         for (Player player : getAllOnlinePlayers(true)) {
             leave(player);
         }
@@ -365,7 +378,10 @@ public class GameSession {
         if (session != null) {
             session = null;
             timer.cancel();
-            board.unregister();
+            if (board != null) {
+                board.hide();
+                board.unregister();
+            }
             for (Player player : getAllOnlinePlayers(true)) {
                 leave(player);
             }
@@ -566,12 +582,16 @@ public class GameSession {
     /** Add a Spectator player to this session */
     public void addSpectator(UUID player) {
         data.addSpectator(player);
-        board.getTeam("spectators").addPlayer(events.getServer().getOfflinePlayer(player));
+        if (board != null) {
+            board.getTeam("spectators").addPlayer(events.getServer().getOfflinePlayer(player));
+        }
     }
     /** Remove a Spectator player from this session */
     public void removeSpectator(UUID player) {
         data.removeSpectator(player);
-        board.getTeam("spectators").removePlayer(events.getServer().getOfflinePlayer(player));
+        if (board != null) {
+            board.getTeam("spectators").removePlayer(events.getServer().getOfflinePlayer(player));
+        }
     }
     /** Check if the session has this Spectator player */
     public boolean hasSpectator(UUID player) {

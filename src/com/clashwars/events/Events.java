@@ -9,6 +9,7 @@ import com.clashwars.events.config.data.SessionCfg;
 import com.clashwars.events.events.EventType;
 import com.clashwars.events.events.SessionManager;
 import com.clashwars.events.listeners.MainListener;
+import com.clashwars.events.listeners.ProtectionListener;
 import com.clashwars.events.maps.MapManager;
 import com.clashwars.events.player.PlayerManager;
 import com.google.gson.Gson;
@@ -43,6 +44,9 @@ public class Events extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        getServer().getScheduler().cancelAllTasks();
+        sm.unload();
+
         log("disabled");
     }
 
@@ -91,6 +95,7 @@ public class Events extends JavaPlugin {
     private void registerEvents() {
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new MainListener(this), this);
+        pm.registerEvents(new ProtectionListener(this), this);
 
         EventType[] events = EventType.values();
         for (EventType event : events) {

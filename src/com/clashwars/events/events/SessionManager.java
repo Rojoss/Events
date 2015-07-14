@@ -37,6 +37,12 @@ public class SessionManager {
         }
     }
 
+    public void unload() {
+        for (GameSession session : sessions.values()) {
+            session.unload();
+        }
+    }
+
 
 
 
