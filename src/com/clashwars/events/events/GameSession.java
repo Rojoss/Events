@@ -1,6 +1,7 @@
 package com.clashwars.events.events;
 
 import com.clashwars.cwcore.packet.Title;
+import com.clashwars.cwcore.scoreboard.CWBoard;
 import com.clashwars.cwcore.utils.CWUtil;
 import com.clashwars.events.Events;
 import com.clashwars.events.maps.EventMap;
@@ -16,6 +17,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.NameTagVisibility;
 
 import java.util.*;
 
@@ -29,6 +31,8 @@ public class GameSession {
 
     private BaseEvent event;
     private EventMap map;
+
+    protected CWBoard board;
 
     List<Location> spawnLocs = new ArrayList<Location>();
     protected int maxTime = 300; /** Time in seconds should be overwritten to modify */
@@ -49,6 +53,13 @@ public class GameSession {
 
         if (event == null || map == null || !map.isValid() || map.isClosed()) {
             setState(State.CLOSED);
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    delete();
+                }
+            }.runTaskLater(events, 5);
+            return;
         } else {
             timer = new SessionTimer(getID());
             spawnLocs = new ArrayList<Location>(getMap().getMultiLocs("spawn").values());
@@ -78,6 +89,11 @@ public class GameSession {
                 setState(State.OPENED);
             }
         }
+
+        board = CWBoard.get(map.getTag());
+        board.init(false);
+        board.addTeam("spectators","&d","","&dSpectators", false, true, NameTagVisibility.ALWAYS);
+
         Util.updateSign(map, session);
         save();
     }
@@ -142,6 +158,9 @@ public class GameSession {
         }
 
         if (isCountdown()) {
+            if (timer.getCountdownTime() <= 3) {
+                return JoinType.SPECTATE;
+            }
             return JoinType.JOIN;
         } else {
             return JoinType.QUEUE;
@@ -224,6 +243,8 @@ public class GameSession {
                 }
             }
         }
+
+        board.addPlayer(player);
         Util.updateSign(map, session);
         save();
     }
@@ -250,6 +271,7 @@ public class GameSession {
             broadcast("&4&l-&7" + playerName  + " &8(&dS&8)", true);
         }
 
+        board.removePlayer(uuid);
         Util.updateSign(map, session);
         save();
 
@@ -285,6 +307,7 @@ public class GameSession {
         for (Player player : getAllOnlinePlayers(true)) {
             teleportPlayer(player);
         }
+        board.show();
     }
 
     /** Stop the countdown timer */
@@ -295,6 +318,11 @@ public class GameSession {
             broadcast("&c&lThere aren't enough players to start the game anymore!", true);
             broadcast("&cPlease wait for more players to join again.", true);
         }
+    }
+
+    /** Lock the game at the 3 second timer so players can't join anymore. For team creation and such. */
+    public void lock() {
+        //--
     }
 
     /** Start the game. */
@@ -323,6 +351,8 @@ public class GameSession {
     public void reset() {
         setState(State.RESETTING);
         broadcast("&6&lThe map is resetting!", true);
+
+        board.hide();
         for (Player player : getAllOnlinePlayers(true)) {
             leave(player);
         }
@@ -335,6 +365,7 @@ public class GameSession {
         if (session != null) {
             session = null;
             timer.cancel();
+            board.unregister();
             for (Player player : getAllOnlinePlayers(true)) {
                 leave(player);
             }
@@ -535,10 +566,12 @@ public class GameSession {
     /** Add a Spectator player to this session */
     public void addSpectator(UUID player) {
         data.addSpectator(player);
+        board.getTeam("spectators").addPlayer(events.getServer().getOfflinePlayer(player));
     }
     /** Remove a Spectator player from this session */
     public void removeSpectator(UUID player) {
         data.removeSpectator(player);
+        board.getTeam("spectators").removePlayer(events.getServer().getOfflinePlayer(player));
     }
     /** Check if the session has this Spectator player */
     public boolean hasSpectator(UUID player) {

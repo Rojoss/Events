@@ -54,6 +54,10 @@ public class SessionTimer extends BukkitRunnable {
         return timerRunning;
     }
 
+    /** Get the amount of seconds left on the countdown timer */
+    public int getCountdownTime() {
+        return timerSeconds;
+    }
 
 
     /** Start the resume timer if there is no timer running */
@@ -108,6 +112,9 @@ public class SessionTimer extends BukkitRunnable {
             } else if (timerSeconds == 5) {
                 session.broadcastTitle("", "&a&l" + timerSeconds + " &7seconds till the game starts!", 30, 0, 5, true);
             } else if (timerSeconds <= 3 && timerSeconds > 0) {
+                if (timerSeconds == 3) {
+                    session.lock();
+                }
                 session.broadcastTitle("&a&l" + timerSeconds, "&7" + messages[timerSeconds - 1], 18, 0, 1, true);
                 session.playSound(Sound.NOTE_PLING, 0.8f, 2, true);
             } else if (timerSeconds == 0) {
