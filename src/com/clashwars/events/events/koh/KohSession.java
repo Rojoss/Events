@@ -1,11 +1,13 @@
 package com.clashwars.events.events.koh;
 
+import com.clashwars.cwcore.player.Freeze;
 import com.clashwars.cwcore.scoreboard.Criteria;
 import com.clashwars.cwcore.utils.CWUtil;
 import com.clashwars.events.events.GameSession;
 import com.clashwars.events.events.SessionData;
 import com.clashwars.events.modifiers.Modifier;
 import com.clashwars.events.modifiers.ModifierOption;
+import com.clashwars.events.player.CWPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -54,11 +56,23 @@ public class KohSession extends GameSession {
             return;
         }
     }
+    
+    @Override
+    public void start() {
+        super.start();
+        List<UUID> playerList = getAllPlayers(false);
+        for (UUID player : playerList) {
+            Freeze.unfreeze(player);
+        }
+    }
 
     @Override
     public void teleportPlayer(Player player) {
         super.teleportPlayer(player);
-        //TODO: Freeze player
+        CWPlayer cwp = events.pm.getPlayer(player);
+        if (!isStarted() && !cwp.isSpectating()) {
+            Freeze.freeze(player.getUniqueId(), player.getLocation());
+        }
     }
 
     private void setupTeams(int playersPerTeam) {

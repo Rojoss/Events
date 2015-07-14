@@ -1,6 +1,7 @@
 package com.clashwars.events.events;
 
 import com.clashwars.cwcore.packet.Title;
+import com.clashwars.cwcore.player.Vanish;
 import com.clashwars.cwcore.scoreboard.CWBoard;
 import com.clashwars.cwcore.utils.CWUtil;
 import com.clashwars.events.Events;
@@ -378,12 +379,12 @@ public class GameSession {
         if (session != null) {
             session = null;
             timer.cancel();
+            for (Player player : getAllOnlinePlayers(true)) {
+                leave(player);
+            }
             if (board != null) {
                 board.hide();
                 board.unregister();
-            }
-            for (Player player : getAllOnlinePlayers(true)) {
-                leave(player);
             }
             Util.updateSign(map, null);
             events.sm.deleteSession(getID());
@@ -585,6 +586,7 @@ public class GameSession {
         if (board != null) {
             board.getTeam("spectators").addPlayer(events.getServer().getOfflinePlayer(player));
         }
+        Vanish.vanish(player);
     }
     /** Remove a Spectator player from this session */
     public void removeSpectator(UUID player) {
@@ -592,6 +594,7 @@ public class GameSession {
         if (board != null) {
             board.getTeam("spectators").removePlayer(events.getServer().getOfflinePlayer(player));
         }
+        Vanish.unvanish(player);
     }
     /** Check if the session has this Spectator player */
     public boolean hasSpectator(UUID player) {

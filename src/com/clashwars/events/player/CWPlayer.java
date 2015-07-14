@@ -1,6 +1,8 @@
 package com.clashwars.events.player;
 
 import com.clashwars.cwcore.helpers.CWItem;
+import com.clashwars.cwcore.player.Freeze;
+import com.clashwars.cwcore.player.Vanish;
 import com.clashwars.cwcore.utils.CWUtil;
 import com.clashwars.events.Events;
 import com.clashwars.events.config.data.PlayerCfg;
@@ -53,6 +55,8 @@ public class CWPlayer {
             return;
         }
         CWUtil.resetPlayer(player, GameMode.SURVIVAL);
+        Freeze.unfreeze(player.getUniqueId());
+        Vanish.unvanish(player.getUniqueId());
     }
 
     /** Reset all data from this player. */
