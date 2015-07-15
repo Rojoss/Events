@@ -411,25 +411,34 @@ public class GameSession {
     public void teleportPlayer(Player player) {
         CWPlayer cwp = events.pm.getPlayer(player);
         CWUtil.resetPlayer(player, GameMode.SURVIVAL);
-        if (cwp.isSpectating() || spawnLocs.size() <= 0) {
+        player.teleport(getTeleportLocation(cwp));
+        if (cwp.isSpectating()) {
             player.setAllowFlight(true);
             player.setFlying(true);
-            player.teleport(getMap().getCuboid("map").getCenterLoc());
-            cwp.setTeleportID(-1);
             Equipment.SPECTATOR.equip(player);
         } else {
+            Util.equipItems(player, event.getEquipment(this));
+        }
+    }
+
+    public Location getTeleportLocation(CWPlayer cwp) {
+        Location loc = null;
+        if (cwp.isSpectating() || spawnLocs.size() <= 0) {
+            loc = getMap().getCuboid("map").getCenterLoc();
+            cwp.setTeleportID(-1);
+        } else {
             if (cwp.getTeleportID() >= 0 && spawnLocs.size() > cwp.getTeleportID()) {
-                player.teleport(spawnLocs.get(cwp.getTeleportID()));
+                loc = spawnLocs.get(cwp.getTeleportID());
             } else {
-                player.teleport(spawnLocs.get(data.getTeleportID()));
+                loc = spawnLocs.get(data.getTeleportID());
                 cwp.setTeleportID(data.getTeleportID());
                 data.setTeleportID(data.getTeleportID() + 1);
                 if (data.getTeleportID() >= spawnLocs.size()) {
                     data.setTeleportID(0);
                 }
             }
-            Util.equipItems(player, event.getEquipment(this));
         }
+        return loc;
     }
 
     /** Broadcast a message to all players in the session */
