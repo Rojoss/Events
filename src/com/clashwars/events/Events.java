@@ -6,6 +6,7 @@ import com.clashwars.events.config.data.MapCfg;
 import com.clashwars.events.config.data.PlayerCfg;
 import com.clashwars.events.config.PluginCfg;
 import com.clashwars.events.config.data.SessionCfg;
+import com.clashwars.events.events.BaseEvent;
 import com.clashwars.events.events.EventType;
 import com.clashwars.events.events.SessionManager;
 import com.clashwars.events.listeners.MainListener;
@@ -97,6 +98,7 @@ public class Events extends JavaPlugin {
         pm.registerEvents(new MainListener(this), this);
         pm.registerEvents(new ProtectionListener(this), this);
 
+        pm.registerEvents(new BaseEvent(), this);
         EventType[] events = EventType.values();
         for (EventType event : events) {
             pm.registerEvents(event.getEventClass(), this);

@@ -1,12 +1,20 @@
 package com.clashwars.events.events;
 
+import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.cwcore.helpers.CWItem;
+import com.clashwars.events.Events;
 import com.clashwars.events.modifiers.Modifier;
+import com.clashwars.events.player.CWPlayer;
 import com.clashwars.events.setup.SetupOption;
 import com.clashwars.events.setup.SetupType;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -16,10 +24,14 @@ import java.util.List;
  */
 public class BaseEvent implements Listener {
 
+    protected Events events;
+
     protected List<SetupOption> setupOptions = new ArrayList<SetupOption>(); /** Event specific setup options should be added in each event class. */
     protected List<Modifier> modifiers = new ArrayList<Modifier>();
 
     public BaseEvent() {
+        events = Events.inst();
+
         setupOptions.add(new SetupOption(SetupType.CUBOID, "map", "A cuboid that contains the entire map."));
         setupOptions.add(new SetupOption(SetupType.BLOCK_LOC, "sign", "The sign to join the map."));
         setupOptions.add(new SetupOption(SetupType.MULTI_LOC, "spawn", "Location(s) where players (re)spawn."));
@@ -83,6 +95,91 @@ public class BaseEvent implements Listener {
             if (modifier.toString().startsWith(prefix)) {
                 modifiers.add(modifier);
             }
+        }
+    }
+
+
+
+    //Util/helper methods
+
+    protected CWPlayer getCWPlayer(Player player) {
+        return events.pm.getPlayer(player);
+    }
+
+    protected boolean isSpectating(Player player) {
+        return isSpectating(getCWPlayer(player));
+    }
+
+    protected boolean isSpectating(CWPlayer cwp) {
+        return cwp.isSpectating();
+    }
+
+    protected boolean inSession(Player player) {
+        return inSession(getCWPlayer(player));
+    }
+
+    protected boolean inSession(CWPlayer cwp) {
+        if (!cwp.inSession()) {
+            return false;
+        }
+        return true;
+    }
+
+    protected GameSession getSession(Player player) {
+        return getSession(getCWPlayer(player));
+    }
+
+    protected GameSession getSession(CWPlayer cwp) {
+        return cwp.getSession();
+    }
+
+
+    protected  boolean validateSession(Player player, EventType type, boolean allowSpectators) {
+        return validateSession(player, type, allowSpectators, (List<State>)null);
+    }
+
+    protected  boolean validateSession(Player player, EventType type, boolean allowSpectators, State allowedState) {
+        return validateSession(player, type, allowSpectators, new State[] {allowedState});
+    }
+
+    protected boolean validateSession(Player player, EventType type, boolean allowSpectators, State[] allowedStates) {
+        return validateSession(player, type, allowSpectators, Arrays.asList(allowedStates));
+    }
+
+    protected boolean validateSession(Player player, EventType type, boolean allowSpectators, List<State> allowedStates) {
+        CWPlayer cwp = getCWPlayer(player);
+        if (!inSession(cwp)) {
+            return false;
+        }
+
+        if (!allowSpectators && isSpectating(cwp)) {
+            return false;
+        }
+
+        GameSession session = getSession(cwp);
+        if (session == null) {
+            return false;
+        }
+
+        if (type != null && type != session.getType()) {
+            return false;
+        }
+
+        if (allowedStates != null && !allowedStates.contains(session.getState())) {
+            return false;
+        }
+
+        return true;
+    }
+
+
+
+    //Allowed actions for all games
+
+    @EventHandler
+    private void inventoryClick(InventoryClickEvent event) {
+        if (validateSession((Player)event.getWhoClicked(), null, false)) {
+            event.setCancelled(false);
         }
     }
 
