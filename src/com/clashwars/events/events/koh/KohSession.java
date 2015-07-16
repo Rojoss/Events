@@ -67,6 +67,12 @@ public class KohSession extends GameSession {
     }
 
     @Override
+    public void reset() {
+        super.reset();
+        delete();
+    }
+
+    @Override
     public void teleportPlayer(Player player) {
         super.teleportPlayer(player);
         CWPlayer cwp = events.pm.getPlayer(player);

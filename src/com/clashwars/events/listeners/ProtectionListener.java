@@ -4,6 +4,8 @@ import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.events.Events;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -17,6 +19,7 @@ import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class ProtectionListener implements Listener {
 
@@ -99,13 +102,26 @@ public class ProtectionListener implements Listener {
         if (event.getPlayer().getGameMode() == GameMode.CREATIVE) {
             return;
         }
-        event.setUseInteractedBlock(Event.Result.DENY);
+
         if (event.getItem() != null && event.getItem().getType().getMaxDurability() > 0) {
             event.getItem().setDurability((short) 0);
         }
 
         if (event.getAction() == Action.PHYSICAL) {
             event.setCancelled(true);
+        }
+
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            Material type = event.getClickedBlock().getType();
+            if (type == Material.LEVER || type == Material.STONE_BUTTON  || type == Material.WOOD_BUTTON || type == Material.NOTE_BLOCK  || type == Material.JUKEBOX  || type == Material.CAKE
+                    || type == Material.WOODEN_DOOR || type == Material.TRAP_DOOR || type == Material.FENCE_GATE || type == Material.DISPENSER || type == Material.FURNACE
+                    || type == Material.BURNING_FURNACE || type == Material.WORKBENCH || type == Material.BREWING_STAND || type == Material.ENCHANTMENT_TABLE || type == Material.CAULDRON
+                    || type == Material.ENDER_CHEST || type == Material.CHEST || type == Material.BEACON || type == Material.ANVIL || type == Material.HOPPER || type == Material.DROPPER
+                    || type == Material.DRAGON_EGG || type == Material.FIRE ||type == Material.ACACIA_FENCE_GATE || type == Material.BIRCH_FENCE_GATE || type == Material.DARK_OAK_FENCE_GATE
+                    || type == Material.JUNGLE_FENCE_GATE || type == Material.SPRUCE_FENCE_GATE || type == Material.ACACIA_DOOR || type == Material.BIRCH_DOOR || type == Material.JUNGLE_DOOR
+                    || type == Material.DARK_OAK_DOOR || type == Material.SPRUCE_DOOR || type == Material.ARMOR_STAND || type == Material.BURNING_FURNACE || type == Material.TRAPPED_CHEST) {
+                event.setCancelled(true);
+            }
         }
 
         if (event.getItem() != null && (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR)) {
@@ -263,5 +279,14 @@ public class ProtectionListener implements Listener {
         event.setCancelled(true);
     }
 
-
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    private void fallingBlockLand(EntityChangeBlockEvent event) {
+        if (!(event.getEntity() instanceof FallingBlock)) {
+            return;
+        }
+        event.setCancelled(true);
+        if (event.getBlock().getType() == event.getTo()) {
+            event.getBlock().setType(Material.AIR);
+        }
+    }
 }

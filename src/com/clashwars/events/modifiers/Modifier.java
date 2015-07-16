@@ -66,9 +66,9 @@ public enum Modifier {
     //SPLEEF MODIFIERS
     SPLEEF_TOOL(new String[] {"&7The tool you get to spleef others down.", "&7Arrows from bows will create holes.","&7And TnT can be thrown to create holes."},
             new ModifierOption[] {
-                    new ItemModifierOption(0, "Spade", "277 1 name:&3&lSpade lore:&7Break_snow_with_this!", 0.6f),
-                    new ItemModifierOption(1, "Bow", "261 1 arrow_infinity:1 name:&e&lBow lore:&7Arrows_shot_with_this_will_create_holes!", 0.2f),
-                    new ItemModifierOption(2, "TnT", "46 1 name:&c&lTnT lore:&7You_can_place_it_and_throw_it!", 0.2f)
+                    new IntModifierOption(0, "Spade", 0, 0.6f),
+                    new IntModifierOption(1, "Bow", 1, 0.2f),
+                    new IntModifierOption(2, "TnT", 2, 0.2f)
             }),
     SPLEEF_DECAY(new String[] {"&7When there is decay blocks will slowly decay.", "&7This means the blocks will start to disappear!"},
             new ModifierOption[] {
@@ -86,7 +86,7 @@ public enum Modifier {
             new ModifierOption[] {
                     new IntModifierOption(0, "Solid", 0, 0.6f),
                     new IntModifierOption(1, "Few changes", 1, 0.3f),
-                    new IntModifierOption(2, "A lot changes", 2, 0.1f)
+                    new IntModifierOption(2, "Many changes", 2, 0.1f)
             }),
     SPLEEF_SPEED(new String[] {"&7You'll speed or slowness."},
             new ModifierOption[] {
@@ -95,7 +95,7 @@ public enum Modifier {
                     new IntModifierOption(2, "Fast speed", 1, 0.2f),
                     new IntModifierOption(3, "Super fast speed", 2, 0.1f)
             }),
-    SPLEEF_BLINDNESS(new String[] {"&7When enabled you will be blinded", "&7when you get close to another player."},
+    SPLEEF_BLINDNESS(new String[] {"&7When enabled you will be blinded"},
             new ModifierOption[] {
                     new BoolModifierOption(0, "No blindness", false, 0.9f),
                     new BoolModifierOption(1, "Blindness", true, 0.1f)

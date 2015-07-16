@@ -388,7 +388,6 @@ public class SetupCmd extends PlayerCmd {
         showHelp(player);
     }
 
-
     private void showHelp(Player player) {
         player.sendMessage(CWUtil.integrateColor("&8===== &4&lSetup Commands &8====="));
         player.sendMessage(CWUtil.integrateColor("&6/setup create {event} {mapName} &8- &7Register a new map."));

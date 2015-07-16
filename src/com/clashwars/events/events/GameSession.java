@@ -198,7 +198,7 @@ public class GameSession {
                     teleportPlayer(player);
                 }
             } else {
-               addSpectator(uuid);
+                addSpectator(uuid);
                 cwp.setSpectating(true);
                 broadcast("&6&l+&3" + player.getDisplayName() + " &8(&d&lS&8)", true);
                 if (session.isCountdown() || session.isStarted()) {
@@ -289,8 +289,8 @@ public class GameSession {
         save();
 
         if (getPlayerCount(false) <= 0) {
-            //If no players left remove the session.
-            delete();
+            //If no players left reset the session.
+            reset();
         } else if (getPlayerCount(false) < map.getMinPlayers()) {
             //If not enough players anymore stop the timer or end the game.
             if (isStarted()) {
@@ -301,6 +301,36 @@ public class GameSession {
                 stopCountdown();
             }
         }
+    }
+
+
+    /** Set player to spectator mode if he's playing */
+    public void switchToSpectator(Player player) {
+        UUID uuid = player.getUniqueId();
+        CWPlayer cwp = events.pm.getPlayer(player);
+        if (!hasPlayer(uuid, true, true, false) || cwp.isSpectating() || !cwp.inSession()) {
+            return;
+        }
+
+        if (hasPlayer(uuid)) {
+            removePlayer(uuid);
+        }
+        if (hasVip(uuid)) {
+            removeVip(uuid);
+        }
+
+        if (!hasSpectator(uuid)) {
+            addSpectator(uuid);
+        }
+        cwp.setSpectating(true);
+
+        CWUtil.resetPlayer(player, GameMode.SURVIVAL);
+        player.setAllowFlight(true);
+        player.setFlying(true);
+        Equipment.SPECTATOR.equip(player);
+
+        player.teleport(spawnLocs.get(0));
+        Util.updateSign(map, session);
     }
 
 
@@ -348,6 +378,11 @@ public class GameSession {
 
     /** End the game with the specified winner(s). (can be null for no winners) */
     public void end(List<UUID> winners) {
+
+        if (winners != null && winners.size() > 0) {
+            broadcast("&a&l" + CWUtil.getName(winners.get(0)) + " &6&lwins!", true);
+        }
+
         setState(State.ENDED);
         new BukkitRunnable() {
             @Override
@@ -370,8 +405,6 @@ public class GameSession {
         for (Player player : getAllOnlinePlayers(true)) {
             leave(player);
         }
-
-        delete(); //TODO: This is temporary.
     }
 
     /** Delete the session so a new session can be opened for this map */
@@ -395,7 +428,7 @@ public class GameSession {
     public void resume() {
         if (getPlayerCount(false) < map.getMinPlayers()) {
             broadcast("&c&lNot enough players joined back!", true);
-            delete();
+            reset();
             return;
         }
         setState(State.STARTED);
@@ -424,7 +457,7 @@ public class GameSession {
     public Location getTeleportLocation(CWPlayer cwp) {
         Location loc = null;
         if (cwp.isSpectating() || spawnLocs.size() <= 0) {
-            loc = getMap().getCuboid("map").getCenterLoc();
+            loc = getMap().getCuboid("map").getCenterLoc(); //TODO: Teleport to safe location
             cwp.setTeleportID(-1);
         } else {
             if (cwp.getTeleportID() >= 0 && spawnLocs.size() > cwp.getTeleportID()) {

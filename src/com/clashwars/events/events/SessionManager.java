@@ -5,6 +5,7 @@ import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.events.Events;
 import com.clashwars.events.config.data.SessionCfg;
 import com.clashwars.events.events.koh.KohSession;
+import com.clashwars.events.events.spleef.SpleefSession;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -58,6 +59,8 @@ public class SessionManager {
         GameSession session = null;
         if (type == EventType.KOH) {
             session = new KohSession(data, false);
+        } else if (type == EventType.SPLEEF) {
+            session = new SpleefSession(data, false);
         }
         if (session != null) {
             if (session.getMap() != null && session.getMap().isValid() && !session.getMap().isClosed()) {
@@ -74,6 +77,12 @@ public class SessionManager {
         GameSession session = null;
         if (data.getEventType() == EventType.KOH) {
             session = new KohSession(data, true);
+        } else if (data.getEventType() == EventType.SPLEEF) {
+            session = new SpleefSession(data, true);
+        }
+
+        if (session == null || session.getID() < 0) {
+            return null;
         }
 
         sessions.put(session.getID(), session);
@@ -100,6 +109,11 @@ public class SessionManager {
             }
         }
         return createSession(eventType, mapName);
+    }
+
+    /** Get the hashmap with all the sessions by ID */
+    public HashMap<Integer, GameSession> getSessions() {
+        return sessions;
     }
 
     /** Returns true if there is a session for this event/map and false if not. */

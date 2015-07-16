@@ -1,7 +1,5 @@
 package com.clashwars.events.modifiers;
 
-import com.clashwars.cwcore.helpers.CWItem;
-import org.bukkit.Material;
 
 public class ModifierOption {
 
@@ -33,12 +31,5 @@ public class ModifierOption {
             return ((IntModifierOption)this).getInt();
         }
         return 0;
-    }
-
-    public CWItem getCWItem() {
-        if (this instanceof ItemModifierOption) {
-            return ((ItemModifierOption)this).getItem();
-        }
-        return new CWItem(Material.STONE);
     }
 }
