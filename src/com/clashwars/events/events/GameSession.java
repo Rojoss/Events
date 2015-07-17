@@ -12,12 +12,10 @@ import com.clashwars.events.player.CWPlayer;
 import com.clashwars.events.runnables.SessionTimer;
 import com.clashwars.events.util.Equipment;
 import com.clashwars.events.util.Util;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.NameTagVisibility;
 
 import java.util.*;
@@ -92,19 +90,15 @@ public class GameSession {
         }
 
         board = CWBoard.get(map.getTag());
-        board.init(false);
+        board.register();
         board.addTeam("spectators","&d","","&dSpectators", false, true, NameTagVisibility.ALWAYS);
-        //TODO: Setup scoreboard if it's loaded from config.
 
         Util.updateSign(map, session);
         save();
     }
 
     public void unload() {
-        if (board != null) {
-            board.hide();
-            board.unregister();
-        }
+        //-
     }
 
 
@@ -284,6 +278,7 @@ public class GameSession {
 
         if (board != null) {
             board.removePlayer(uuid);
+            board.resetScore(player.getName());
         }
         Util.updateSign(map, session);
         save();
@@ -351,7 +346,7 @@ public class GameSession {
             teleportPlayer(player);
         }
         if (board != null) {
-            board.show();
+            board.show(true);
         }
     }
 
@@ -416,8 +411,9 @@ public class GameSession {
                 leave(player);
             }
             if (board != null) {
-                board.hide();
+                board.hide(null);
                 board.unregister();
+                board.delete();
             }
             Util.updateSign(map, null);
             events.sm.deleteSession(getID());
@@ -445,6 +441,10 @@ public class GameSession {
         CWPlayer cwp = events.pm.getPlayer(player);
         CWUtil.resetPlayer(player, GameMode.SURVIVAL);
         player.teleport(getTeleportLocation(cwp));
+        if (isOpened() || isResetting()) {
+            Equipment.LOBBY.equip(player);
+            return;
+        }
         if (cwp.isSpectating()) {
             player.setAllowFlight(true);
             player.setFlying(true);
@@ -456,6 +456,9 @@ public class GameSession {
 
     public Location getTeleportLocation(CWPlayer cwp) {
         Location loc = null;
+        if (isOpened() || isResetting()) {
+            return cwp.getWorld().getSpawnLocation();
+        }
         if (cwp.isSpectating() || spawnLocs.size() <= 0) {
             loc = getMap().getCuboid("map").getCenterLoc(); //TODO: Teleport to safe location
             cwp.setTeleportID(-1);
@@ -626,7 +629,7 @@ public class GameSession {
     public void addSpectator(UUID player) {
         data.addSpectator(player);
         if (board != null) {
-            board.getTeam("spectators").addPlayer(events.getServer().getOfflinePlayer(player));
+            board.joinTeam("spectators", events.getServer().getOfflinePlayer(player));
         }
         Vanish.vanish(player);
     }
@@ -634,7 +637,7 @@ public class GameSession {
     public void removeSpectator(UUID player) {
         data.removeSpectator(player);
         if (board != null) {
-            board.getTeam("spectators").removePlayer(events.getServer().getOfflinePlayer(player));
+            board.leaveTeam("spectators", events.getServer().getOfflinePlayer(player));
         }
         Vanish.unvanish(player);
     }
@@ -827,6 +830,11 @@ public class GameSession {
     /** Get the session timer */
     public SessionTimer getTimer() {
         return timer;
+    }
+
+    /** Get the CWBoard for this session */
+    public CWBoard getBoard() {
+        return board;
     }
 
     /** Save the session to config */

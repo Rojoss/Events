@@ -11,8 +11,6 @@ import com.clashwars.events.player.CWPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.Score;
-import org.bukkit.scoreboard.Team;
 
 import java.util.*;
 
@@ -29,15 +27,12 @@ public class KohSession extends GameSession {
         super.lock();
         HashMap<Modifier, ModifierOption> modifierOptions = getModifierOptions();
 
-        board.addObjective("lives-side", Criteria.DUMMY, DisplaySlot.SIDEBAR, true);
-        Objective sidebarObj = board.getObjective("lives-side");
-        sidebarObj.setDisplayName(CWUtil.integrateColor("&4&lLIVES"));
+        Objective sidebarObj = board.addObjective("lives-side", "&4&lLIVES", Criteria.DUMMY, DisplaySlot.SIDEBAR, true);
 
         List<UUID> playerList = getAllPlayers(false);
         for (UUID player : playerList) {
             String playerName = CWUtil.getName(player);
-            Score score = sidebarObj.getScore(playerName);
-            score.setScore(modifierOptions.get(Modifier.KOH_LIVES).getInteger());
+            board.setScore(DisplaySlot.SIDEBAR, playerName, modifierOptions.get(Modifier.KOH_LIVES).getInteger());
         }
 
         if (modifierOptions.get(Modifier.KOH_TEAMS).getBoolean()) {
@@ -86,15 +81,15 @@ public class KohSession extends GameSession {
 
         int count = 0;
         int id = 0;
-        Team team = null;
+        String team = "";
 
         for (UUID uuid : allPlayers) {
-            if (team == null || count % playersPerTeam == 0) {
+            if (team.isEmpty() || count % playersPerTeam == 0) {
                 board.addTeam("team-" + id, CWUtil.getPrefix(true, id), "", false, false);
-                team = board.getTeam("team-" + id);
+                team = "team-" + id;
                 id++;
             }
-            team.addPlayer(events.getServer().getOfflinePlayer(uuid));
+            board.joinTeam(team, events.getServer().getOfflinePlayer(uuid));
             count++;
         }
     }

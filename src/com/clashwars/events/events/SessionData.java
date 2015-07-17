@@ -1,8 +1,10 @@
 package com.clashwars.events.events;
 
 import com.clashwars.cwcore.utils.CWUtil;
+import com.clashwars.events.Events;
 import com.clashwars.events.modifiers.Modifier;
 import com.clashwars.events.modifiers.ModifierOption;
+import com.clashwars.cwcore.scoreboard.data.BoardData;
 
 import java.util.*;
 
@@ -109,10 +111,10 @@ public class SessionData {
     }
 
     public List<UUID> getPlayers() {
-        return stringListToUUID(players);
+        return CWUtil.stringListToUUID(players);
     }
     public void setPlayers(List<UUID> players) {
-        this.players = uuidListToString(players);
+        this.players = CWUtil.uuidListToString(players);
     }
     public void addPlayer(UUID player) {
         players.add(player.toString());
@@ -122,10 +124,10 @@ public class SessionData {
     }
 
     public List<UUID> getVipPlayers() {
-        return stringListToUUID(vipPlayers);
+        return CWUtil.stringListToUUID(vipPlayers);
     }
     public void setVipPlayers(List<UUID> vipPlayers) {
-        this.vipPlayers = uuidListToString(vipPlayers);
+        this.vipPlayers = CWUtil.uuidListToString(vipPlayers);
     }
     public void addVip(UUID player) {
         vipPlayers.add(player.toString());
@@ -135,10 +137,10 @@ public class SessionData {
     }
 
     public List<UUID> getSpectators() {
-        return stringListToUUID(spectators);
+        return CWUtil.stringListToUUID(spectators);
     }
     public void setSpectators(List<UUID> spectators) {
-        this.spectators = uuidListToString(spectators);
+        this.spectators = CWUtil.uuidListToString(spectators);
     }
     public void addSpectator(UUID player) {
         spectators.add(player.toString());
@@ -147,21 +149,4 @@ public class SessionData {
         spectators.remove(player.toString());
     }
 
-
-
-    private List<UUID> stringListToUUID(List<String> stringList) {
-        List<UUID> uuidList = new ArrayList<UUID>();
-        for (String uuid : stringList) {
-            uuidList.add(UUID.fromString(uuid));
-        }
-        return uuidList;
-    }
-
-    private List<String> uuidListToString(List<UUID> uuidList) {
-        List<String> stringList = new ArrayList<String>();
-        for (UUID uuid : uuidList) {
-            stringList.add(uuid.toString());
-        }
-        return stringList;
-    }
 }
