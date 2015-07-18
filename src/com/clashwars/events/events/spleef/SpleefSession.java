@@ -22,15 +22,17 @@ public class SpleefSession extends GameSession {
     }
 
     @Override
-    public void reset() {
-        super.reset();
+    public boolean reset() {
+        if (!super.reset()) {
+            return false;
+        }
         for (Block b : getMap().getCuboid("floor").getBlocks()) {
             if (b.getType() == Material.AIR) {
                 b.setType(Material.SNOW_BLOCK);
             }
         }
         delete();
-
+        return true;
     }
 
     @Override
