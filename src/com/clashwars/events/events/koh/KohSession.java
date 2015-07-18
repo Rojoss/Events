@@ -8,6 +8,7 @@ import com.clashwars.events.events.SessionData;
 import com.clashwars.events.modifiers.Modifier;
 import com.clashwars.events.modifiers.ModifierOption;
 import com.clashwars.events.player.CWPlayer;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -51,6 +52,24 @@ public class KohSession extends GameSession {
             return;
         }
     }
+
+    @Override
+    public void onHold() {
+        super.onHold();
+        List<Player> players = getAllOnlinePlayers(false);
+        for (Player player : players) {
+            Freeze.freeze(player.getUniqueId(), player.getLocation());
+        }
+    }
+
+    @Override
+    public void resume() {
+        super.resume();
+        List<UUID> players = getAllPlayers(false);
+        for (UUID player : players) {
+            Freeze.unfreeze(player);
+        }
+    }
     
     @Override
     public void start() {
@@ -62,9 +81,20 @@ public class KohSession extends GameSession {
     }
 
     @Override
-    public void reset() {
-        super.reset();
+    public boolean reset() {
+        if (!super.reset()) {
+            return false;
+        }
         delete();
+        return true;
+    }
+
+    @Override
+    public void join(Player player) {
+        super.join(player);
+        if (isOnHold()) {
+            Freeze.freeze(player.getUniqueId(), player.getLocation());
+        }
     }
 
     @Override
@@ -85,7 +115,8 @@ public class KohSession extends GameSession {
 
         for (UUID uuid : allPlayers) {
             if (team.isEmpty() || count % playersPerTeam == 0) {
-                board.addTeam("team-" + id, CWUtil.getPrefix(true, id), "", false, false);
+                String prefix = CWUtil.getPrefix(true, id);
+                board.addTeam("team-" + id, prefix, "", prefix + CWUtil.getTeamName(prefix), false, false);
                 team = "team-" + id;
                 id++;
             }
