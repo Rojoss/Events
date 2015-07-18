@@ -14,7 +14,7 @@ import java.util.Map;
 public class MapData {
 
     private String name;
-    private String[] authors;
+    private String[] authors = new String[] {};
     private EventType eventType;
     private boolean closed = true;
 
