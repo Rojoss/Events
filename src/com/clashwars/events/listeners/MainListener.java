@@ -126,7 +126,7 @@ public class MainListener implements Listener {
                             return;
                         }
 
-                        JoinType joinType = session.canJoin(player);
+                        JoinType joinType = session.canJoin(player, player.isSneaking());
                         if (joinType == JoinType.QUEUE) {
                             player.playSound(player.getLocation(), Sound.WOOD_CLICK, 1, 2);
                             player.sendMessage(Util.formatMsg("&6&lYou have &a&lqueued up &6&lfor the game!"));
@@ -138,7 +138,6 @@ public class MainListener implements Listener {
                         if (joinType == JoinType.JOIN) {
                             player.playSound(player.getLocation(), Sound.WOOD_CLICK, 1, 2);
                             player.sendMessage(Util.formatMsg("&6&lYou have &a&ljoined &6&lthe game!"));
-                            //TODO: Send game modifiers to player.
                             session.join(player);
                             return;
                         }
@@ -161,6 +160,8 @@ public class MainListener implements Listener {
                         player.playSound(player.getLocation(), Sound.ITEM_BREAK, 0.5f, 2);
                         if (joinType == JoinType.CLOSED) {
                             player.sendMessage(Util.formatMsg("&cThis map is not playable right now."));
+                        } else if (joinType == JoinType.STARTED) {
+                            player.sendMessage(Util.formatMsg("&cThis game already started!. &7Sneak and click again to spectate!"));
                         } else if (joinType == JoinType.ENDED) {
                             player.sendMessage(Util.formatMsg("&cThis game just ended. &7It will reset soon!"));
                         } else if (joinType == JoinType.INVALID) {
@@ -168,9 +169,9 @@ public class MainListener implements Listener {
                         } else if (joinType == JoinType.RESETTING) {
                             player.sendMessage(Util.formatMsg("&cThis map is resetting. &7You'll be able to join soon!"));
                         } else if (joinType == JoinType.FULL) {
-                            player.sendMessage(Util.formatMsg("&cThis map is full!"));
+                            player.sendMessage(Util.formatMsg("&cThis map is full! &7Sneak and click again to spectate!"));
                         } else if (joinType == JoinType.IN_GAME) {
-                            player.sendMessage(Util.formatMsg("&cYou're already in a game! &7If you'd like to leave your current game use &c/leave&7!"));
+                            player.sendMessage(Util.formatMsg("&cYou're already in a game! &7If you'd like to leave your current game use &c&l/leave&7!"));
                         }
                         return;
                     }

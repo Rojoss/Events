@@ -7,6 +7,7 @@ public enum JoinType {
     INVALID, /** When the session/map is invalid. */
     CLOSED, /** When the map is closed/locked. */
     FULL, /** When the session is full */
+    STARTED, /** When the session has already started and player doesn't use spectate. */
     ENDED, /** When the session has ended */
     RESETTING, /** When the session is still resetting */
     IN_GAME, /** When the player is already in a session. (Most likely queued but doesn't have to be) */
