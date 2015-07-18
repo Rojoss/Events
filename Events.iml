@@ -19,5 +19,14 @@
       </library>
     </orderEntry>
     <orderEntry type="module" module-name="CWCore" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../_LIB/plugins/worldedit-bukkit-6.0.2-SNAPSHOT-dist.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>

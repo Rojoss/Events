@@ -3,7 +3,7 @@ package com.clashwars.events.commands;
 import com.clashwars.cwcore.cuboid.Cuboid;
 import com.clashwars.cwcore.cuboid.Selection;
 import com.clashwars.cwcore.cuboid.SelectionStatus;
-import com.clashwars.cwcore.debug.Debug;
+import com.clashwars.cwcore.dependencies.CWWorldEdit;
 import com.clashwars.cwcore.utils.CWUtil;
 import com.clashwars.events.commands.internal.PlayerCmd;
 import com.clashwars.events.events.EventType;
@@ -12,11 +12,15 @@ import com.clashwars.events.player.CWPlayer;
 import com.clashwars.events.setup.SetupOption;
 import com.clashwars.events.setup.SetupType;
 import com.clashwars.events.util.Util;
+import com.sk89q.worldedit.MaxChangedBlocksException;
+import com.sk89q.worldedit.util.io.file.FilenameException;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class SetupCmd extends PlayerCmd {
@@ -107,7 +111,7 @@ public class SetupCmd extends PlayerCmd {
             player.sendMessage(CWUtil.integrateColor("&8===== &4&lMap Information &8====="));
             player.sendMessage(CWUtil.integrateColor("&6Event&8: &7" + map.getType().toString().toLowerCase().replace("_"," ")));
             player.sendMessage(CWUtil.integrateColor("&6Name&8: &7" + map.getName()));
-            player.sendMessage(CWUtil.integrateColor("&6Authors&8: &7" + CWUtil.implode(map.getAuthors(), "&8, &7")));
+            player.sendMessage(CWUtil.integrateColor("&6Authors&8: &7" + ((map.getAuthors() == null || map.getAuthors().length <= 0) ? "&7None set" : CWUtil.implode(map.getAuthors(), "&8, &7"))));
             player.sendMessage(CWUtil.integrateColor("&6Min slots&8: &7" + map.getMinPlayers() + " &6Max slots&8: &7" + map.getMaxPlayers() + " &6VIP slots&8: &7" + map.getVipSpots()));
             player.sendMessage(CWUtil.integrateColor("&6Closed&8: &7" + (map.isClosed() ? "&4closed" : "&aopened")));
             player.sendMessage(CWUtil.integrateColor("&6Valid&8: &7" + (map.isValid() ? "&avalid" : "&4invalid")));
@@ -385,6 +389,64 @@ public class SetupCmd extends PlayerCmd {
             return;
         }
 
+        if (args[0].equalsIgnoreCase("save")) {
+            if (cwp.getSelectedEvent() == null || cwp.getSelectedMap() == null || events.mm.getMap(cwp.getSelectedEvent(), cwp.getSelectedMap()) == null) {
+                player.sendMessage(Util.formatMsg("&cNo map selected! &7Select one using &c/setup select&7!"));
+                return;
+            }
+            EventMap map = events.mm.getMap(cwp.getSelectedEvent(), cwp.getSelectedMap());
+
+            Cuboid mapCuboid = map.getCuboid("map");
+            if (mapCuboid == null) {
+                player.sendMessage(Util.formatMsg("&cNo 'map' cuboid set! &7You have to set a cuboid with the name 'map' before you can save it!"));
+                return;
+            }
+
+            File mapsFolder = new File(events.getDataFolder(), "maps");
+            mapsFolder.mkdir();
+            try {
+                CWWorldEdit.saveSchematic(mapCuboid.getMinLoc(), mapCuboid.getMaxLoc(), new File(mapsFolder, map.getTag()));
+                player.sendMessage(Util.formatMsg("&6&lThe map has been &a&lsaved&6&l!"));
+            } catch (FilenameException e) {
+                player.sendMessage(Util.formatMsg("&cFailed at saving the map! &7No file could be created for the map schematic."));
+            } catch (IOException e) {
+                player.sendMessage(Util.formatMsg("&cFailed at saving the map! &7Couldn't save data to the schematic file."));
+            } catch (com.sk89q.worldedit.data.DataException e) {
+                player.sendMessage(Util.formatMsg("&cFailed at saving the map! &7The schematic file couldn't be saved."));
+            }
+            return;
+        }
+
+        if (args[0].equalsIgnoreCase("load")) {
+            if (cwp.getSelectedEvent() == null || cwp.getSelectedMap() == null || events.mm.getMap(cwp.getSelectedEvent(), cwp.getSelectedMap()) == null) {
+                player.sendMessage(Util.formatMsg("&cNo map selected! &7Select one using &c/setup select&7!"));
+                return;
+            }
+            EventMap map = events.mm.getMap(cwp.getSelectedEvent(), cwp.getSelectedMap());
+
+            Cuboid mapCuboid = map.getCuboid("map");
+            if (mapCuboid == null) {
+                player.sendMessage(Util.formatMsg("&cNo 'map' cuboid set! &7You have to set a cuboid with the name 'map' before you can load it!"));
+                return;
+            }
+
+            File mapsFolder = new File(events.getDataFolder(), "maps");
+            mapsFolder.mkdir();
+            try {
+                CWWorldEdit.loadSchematic(new File(mapsFolder, map.getTag()), mapCuboid.getMinLoc());
+                player.sendMessage(Util.formatMsg("&6&lThe map has been &a&lloaded&6&l!"));
+            } catch (FilenameException e) {
+                player.sendMessage(Util.formatMsg("&cFailed at loading the map! &7No schematic file found. Did you save it?"));
+            } catch (IOException e) {
+                player.sendMessage(Util.formatMsg("&cFailed at loading the map! &7Couldn't load the schematic file."));
+            } catch (com.sk89q.worldedit.data.DataException e) {
+                player.sendMessage(Util.formatMsg("&cFailed at loading the map! &7Couldn't load data from the schematic file."));
+            } catch (MaxChangedBlocksException e) {
+                player.sendMessage(Util.formatMsg("&cFailed at loading the map! &7The schematic is too big!"));
+            }
+            return;
+        }
+
         showHelp(player);
     }
 
@@ -394,6 +456,8 @@ public class SetupCmd extends PlayerCmd {
         player.sendMessage(CWUtil.integrateColor("&6/setup list &8- &7List all maps per event."));
         player.sendMessage(CWUtil.integrateColor("&6/setup select {event} {mapname} &8- &7Select the given event/map."));
         player.sendMessage(CWUtil.integrateColor("&6/setup info &8- &7Get information about the event/map."));
+        player.sendMessage(CWUtil.integrateColor("&6/setup save &8- &7Save the map so it can be fully reset/loaded."));
+        player.sendMessage(CWUtil.integrateColor("&6/setup load &8- &7Load the map in from the last saved state."));
         player.sendMessage(CWUtil.integrateColor("&8--- &7&lMap setup &8---"));
         player.sendMessage(CWUtil.integrateColor("&6/setup validate &8- &7Validate if everything is set up properly."));
         player.sendMessage(CWUtil.integrateColor("&6/setup loc {name} &8- &7Set a location for selected event/map."));
