@@ -149,8 +149,7 @@ public class SessionTimer extends BukkitRunnable {
 
         if (session.isStarted()) {
             if (startTime == null || startTime <= 0l) {
-                //TODO: Load/save start time (this is a temp fix)
-                startTime = System.currentTimeMillis();
+                startTime = session.getData().getStartTime();
             }
             int secondsLeft = session.getMaxTime() - ((int)(System.currentTimeMillis() / 1000) - (int)(startTime / 1000));
             if (secondsLeft <= 0) {
