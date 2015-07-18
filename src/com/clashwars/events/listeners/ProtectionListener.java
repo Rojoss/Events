@@ -43,6 +43,11 @@ public class ProtectionListener implements Listener {
             if (event.getCause() == EntityDamageEvent.DamageCause.FIRE_TICK) {
                 ((Player) event.getEntity()).setFireTicks(0);
             }
+
+            if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
+                ((Player) event.getEntity()).damage(((Player) event.getEntity()).getHealth());
+                event.setCancelled(false);
+            }
         }
     }
 
