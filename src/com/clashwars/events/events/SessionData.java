@@ -1,10 +1,8 @@
 package com.clashwars.events.events;
 
 import com.clashwars.cwcore.utils.CWUtil;
-import com.clashwars.events.Events;
 import com.clashwars.events.modifiers.Modifier;
 import com.clashwars.events.modifiers.ModifierOption;
-import com.clashwars.cwcore.scoreboard.data.BoardData;
 
 import java.util.*;
 
@@ -20,6 +18,9 @@ public class SessionData {
     private List<String> players = new ArrayList<String>();
     private List<String> vipPlayers = new ArrayList<String>();
     private List<String> spectators = new ArrayList<String>();
+
+    private List<String> finalPlayers = new ArrayList<String>();
+    private List<String> potentialWinners = new ArrayList<String>();
 
     private HashMap<String, String> modifierValues = new HashMap<String, String>();
     private HashMap<String, String> eventData = new HashMap<String, String>();
@@ -103,11 +104,23 @@ public class SessionData {
     public void addEventData(String key, Object value) {
         this.eventData.put(key, value.toString());
     }
+    public boolean hasEventData(String key) {
+        return eventData.containsKey(key);
+    }
     public String getEventData(String key) {
         if (!eventData.containsKey(key)) {
             return null;
         }
         return eventData.get(key);
+    }
+    public void setEventData(String key, String value) {
+        eventData.put(key, value);
+    }
+    public void removeEventData(String key) {
+        if (!eventData.containsKey(key)) {
+            return;
+        }
+        eventData.remove(key);
     }
 
     public List<UUID> getPlayers() {
@@ -136,6 +149,13 @@ public class SessionData {
         vipPlayers.remove(player.toString());
     }
 
+    public List<UUID> getFinalPlayers() {
+        return CWUtil.stringListToUUID(finalPlayers);
+    }
+    public void setFinalPlayers(List<UUID> players) {
+        this.finalPlayers = CWUtil.uuidListToString(players);
+    }
+
     public List<UUID> getSpectators() {
         return CWUtil.stringListToUUID(spectators);
     }
@@ -147,6 +167,22 @@ public class SessionData {
     }
     public void removeSpectator(UUID player) {
         spectators.remove(player.toString());
+    }
+
+    public boolean hasPotentialWinners() {
+        return potentialWinners != null && potentialWinners.size() > 0;
+    }
+    public List<UUID> getPotentialWinners() {
+        return CWUtil.stringListToUUID(potentialWinners);
+    }
+    public void setPotentialWinners(List<UUID> potentialWinners) {
+        this.potentialWinners = CWUtil.uuidListToString(potentialWinners);
+    }
+    public void addPotentialWinner(UUID player) {
+        potentialWinners.add(player.toString());
+    }
+    public void removePotentialWinner(UUID player) {
+        potentialWinners.remove(player.toString());
     }
 
 }

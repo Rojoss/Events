@@ -15,7 +15,6 @@ import com.clashwars.events.util.Util;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.NameTagVisibility;
 
 import java.util.*;
@@ -75,15 +74,7 @@ public class GameSession {
                     }.runTaskLater(events, 5);
                     return;
                 }
-                setState(State.ON_HOLD);
-                timer.startResumeTimer(20);
-                broadcast("&6&lWaiting for players to join back...", true);
-
-                //Add back all players that are online.
-                List<Player> onlinePlayers = getAllOnlinePlayers(true);
-                for (Player player : onlinePlayers) {
-                    join(player);
-                }
+                onHold();
             } else {
                 setState(State.OPENED);
             }
@@ -111,7 +102,7 @@ public class GameSession {
      * If the player has 'events.joinfull' he can always join even if it's full.
      * If the player has 'events.vip' he can join if the game is full and there are VIP spots left.
      */
-    public JoinType canJoin(Player player) {
+    public JoinType canJoin(Player player, boolean spectateIfStarted) {
         if (map == null || !map.isValid()) {
             return JoinType.INVALID;
         }
@@ -130,7 +121,11 @@ public class GameSession {
             if (cwp.inSession()) {
                 return JoinType.IN_GAME;
             }
-            return JoinType.SPECTATE;
+            if (spectateIfStarted) {
+                return JoinType.SPECTATE;
+            } else {
+                return JoinType.STARTED;
+            }
         }
 
         if (isOnHold()) {
@@ -140,7 +135,11 @@ public class GameSession {
                 if (cwp.inSession()) {
                     return JoinType.IN_GAME;
                 }
-                return JoinType.SPECTATE;
+                if (spectateIfStarted) {
+                    return JoinType.SPECTATE;
+                } else {
+                    return JoinType.STARTED;
+                }
             }
         }
 
@@ -149,12 +148,18 @@ public class GameSession {
         }
 
         //Check if there is space to join.
-        if (!player.hasPermission("events.joinfull")) {
-            if (getPlayerSize() >= map.getMaxPlayers()) {
-                if (!player.hasPermission("events.vip")) {
+        if (getPlayerSize() >= map.getMaxPlayers()) {
+            if (!player.hasPermission("events.vip")) {
+                if (spectateIfStarted) {
+                    return JoinType.SPECTATE;
+                } else {
                     return JoinType.FULL;
                 }
-                if (getVipPlayerSize() >= map.getVipSpots()) {
+            }
+            if (getVipPlayerSize() >= map.getVipSpots()) {
+                if (spectateIfStarted) {
+                    return JoinType.SPECTATE;
+                } else {
                     return JoinType.FULL;
                 }
             }
@@ -162,7 +167,11 @@ public class GameSession {
 
         if (isCountdown()) {
             if (timer.getCountdownTime() <= 3) {
-                return JoinType.SPECTATE;
+                if (spectateIfStarted) {
+                    return JoinType.SPECTATE;
+                } else {
+                    return JoinType.STARTED;
+                }
             }
             return JoinType.JOIN;
         } else {
@@ -286,12 +295,15 @@ public class GameSession {
         if (getPlayerCount(false) <= 0) {
             //If no players left reset the session.
             reset();
-        } else if (getPlayerCount(false) < map.getMinPlayers()) {
+        } else if (getPlayerCount(false) < 2) {
             //If not enough players anymore stop the timer or end the game.
             if (isStarted()) {
-                broadcast("&c&lThere aren't enough players remaining to continue the game!", true);
-                forceEnd();
-                //TODO: End game with a winner if it's almost finished. (Need some good way to know if games are almost finished prob something per event)
+                if (data.hasPotentialWinners()) {
+                    end(data.getPotentialWinners());
+                } else {
+                    broadcast("&c&lThere aren't enough players remaining to continue the game!", true);
+                    forceEnd();
+                }
             } else if (isJoinable()) {
                 stopCountdown();
             }
@@ -326,6 +338,23 @@ public class GameSession {
 
         player.teleport(spawnLocs.get(0));
         Util.updateSign(map, session);
+
+        if (getPlayerCount(false) <= 0) {
+            //If no players left reset the session.
+            reset();
+        } else if (getPlayerCount(false) < 2) {
+            //If not enough players anymore stop the timer or end the game.
+            if (isStarted()) {
+                if (data.hasPotentialWinners()) {
+                    end(data.getPotentialWinners());
+                } else {
+                    broadcast("&c&lThere aren't enough players remaining to continue the game!", true);
+                    forceEnd();
+                }
+            } else if (isJoinable()) {
+                stopCountdown();
+            }
+        }
     }
 
 
@@ -367,15 +396,24 @@ public class GameSession {
 
     /** Start the game. */
     public void start() {
+        data.setStartTime(System.currentTimeMillis());
+        data.setFinalPlayers(getAllPlayers(false));
         setState(State.STARTED);
         broadcast("&6&lThe game has &a&lstarted&6&l!", true);
     }
 
     /** End the game with the specified winner(s). (can be null for no winners) */
     public void end(List<UUID> winners) {
-
-        if (winners != null && winners.size() > 0) {
-            broadcast("&a&l" + CWUtil.getName(winners.get(0)) + " &6&lwins!", true);
+        if (winners != null) {
+            if (winners.size() > 1) {
+                List<String> winnerNames = new ArrayList<String>();
+                for (UUID winner : winners) {
+                    winnerNames.add(CWUtil.getName(winner));
+                }
+                broadcast("&a&l" + CWUtil.implode(winnerNames, "&8&l, &a&l", " &8&l& &a&l") + " &6&lwin!", true);
+            } else if (winners.size() > 0) {
+                broadcast("&a&l" + CWUtil.getName(winners.get(0)) + " &6&lwins!", true);
+            }
         }
 
         setState(State.ENDED);
@@ -387,19 +425,27 @@ public class GameSession {
         }.runTaskLater(events, 100);
     }
 
+    public void end(UUID winner) {
+        end(Arrays.asList(new UUID[] {winner}));
+    }
+
     /** Force end the game without any winners and no stats saved. */
     public void forceEnd() {
-        end(null);
+        end((List<UUID>)null);
     }
 
     /** Reset the game/map. */
-    public void reset() {
+    public boolean reset() {
+        if (isResetting()) {
+            return false;
+        }
         setState(State.RESETTING);
         broadcast("&6&lThe map is resetting!", true);
 
         for (Player player : getAllOnlinePlayers(true)) {
             leave(player);
         }
+        return true;
     }
 
     /** Delete the session so a new session can be opened for this map */
@@ -429,6 +475,20 @@ public class GameSession {
         }
         setState(State.STARTED);
         broadcast("&6The game has been &a&lresumed&6!", true);
+    }
+
+    /** Put the session on hold waiting for new players to join. */
+    public void onHold() {
+        setState(State.ON_HOLD);
+
+        timer.startResumeTimer(20);
+        broadcast("&6&lWaiting for players to join back...", true);
+
+        //Add back all players that are online.
+        List<Player> onlinePlayers = getAllOnlinePlayers(true);
+        for (Player player : onlinePlayers) {
+            join(player);
+        }
     }
 
 
@@ -586,10 +646,12 @@ public class GameSession {
     /** Add a regular player to this session */
     public void addPlayer(UUID player) {
         data.addPlayer(player);
+        save();
     }
     /** Remove a regular player from this session */
     public void removePlayer(UUID player) {
         data.removePlayer(player);
+        save();
     }
     /** Check if the session has this regular player */
     public boolean hasPlayer(UUID player) {
@@ -607,10 +669,12 @@ public class GameSession {
     /** Add a VIP player to this session */
     public void addVip(UUID player) {
         data.addVip(player);
+        save();
     }
     /** Remove a VIP player from this session */
     public void removeVip(UUID player) {
         data.removeVip(player);
+        save();
     }
     /** Check if the session has this VIP player */
     public boolean hasVip(UUID player) {
@@ -632,6 +696,7 @@ public class GameSession {
             board.joinTeam("spectators", events.getServer().getOfflinePlayer(player));
         }
         Vanish.vanish(player);
+        save();
     }
     /** Remove a Spectator player from this session */
     public void removeSpectator(UUID player) {
@@ -640,12 +705,49 @@ public class GameSession {
             board.leaveTeam("spectators", events.getServer().getOfflinePlayer(player));
         }
         Vanish.unvanish(player);
+        save();
     }
     /** Check if the session has this Spectator player */
     public boolean hasSpectator(UUID player) {
         return data.getSpectators().contains(player);
     }
 
+    /** Get all players that were in the session when the game started. */
+    public List<UUID> getFinalPlayers() {
+        return data.getFinalPlayers();
+    }
+    /** Get the amount of players that were in the session when the game started */
+    public int getFinalPlayerSize() {
+        return data.getFinalPlayers().size();
+    }
+
+    /** Get all potential winners in this session */
+    public List<UUID> getPotentialWinners() {
+        return data.getPotentialWinners();
+    }
+    /** Set all the potential winners in this session. If it ends these players will be made winner. */
+    public void setPotentialWinners(List<UUID> potentialWinners) {
+        data.setPotentialWinners(potentialWinners);
+        save();
+    }
+    /** Get the amount of potential winners */
+    public int getPotentialWinnersSize() {
+        return data.getPotentialWinners().size();
+    }
+    /** Add a regular player to this session */
+    public void addPotentialWinner(UUID player) {
+        data.addPotentialWinner(player);
+        save();
+    }
+    /** Remove a potential winner from the list. */
+    public void removePotentialWinner(UUID player) {
+        data.removePotentialWinner(player);
+        save();
+    }
+    /** Check if the session has this player has potential winner. */
+    public boolean hasPotentialWinner(UUID player) {
+        return data.getPotentialWinners().contains(player);
+    }
 
 
     //==========================================
@@ -730,6 +832,9 @@ public class GameSession {
      * If that doesn't happen it will set the value based on the players in the session their preferences.
      */
     private void calculateModifiers() {
+        if (hasModifierOptions()) {
+            return;
+        }
         HashMap<Modifier, ModifierOption> resultMap = new HashMap<Modifier, ModifierOption>();
         for (Modifier modifier : event.getModifiers()) {
             ModifierOption[] options = modifier.getOptions();
@@ -795,6 +900,12 @@ public class GameSession {
     /** Get the SessionData from this session */
     public SessionData getData() {
         return data;
+    }
+
+    /** Set the SessionData for this session */
+    public void setData(SessionData data) {
+        this.data = data;
+        save();
     }
 
     /** Get the unique session ID */
