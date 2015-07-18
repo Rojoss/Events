@@ -60,17 +60,17 @@ public class EventMap {
             if (option.type == SetupType.CUBOID) {
                 if (!data.getCuboids().containsKey(option.name)) {
                     valid = false;
-                    return "Missing cuboid: " + option.name + " &8'&7" + option.description + "&8'";
+                    return "Missing CUBOID: &4&l" + option.name + " &8'&7" + option.description + "&8'";
                 }
             } else if (option.type == SetupType.LOCATION || option.type == SetupType.BLOCK_LOC) {
                 if (!data.getLocs().containsKey(option.name)) {
                     valid = false;
-                    return "Missing " + (option.type == SetupType.BLOCK_LOC ? "block " : "") + "location: " + option.name + " &8'&7" + option.description + "&8'";
+                    return "Missing " + (option.type == SetupType.BLOCK_LOC ? "BLOCK " : "") + "LOCATION: &4&l" + option.name + " &8'&7" + option.description + "&8'";
                 }
             } else if (option.type == SetupType.MULTI_LOC) {
                 if (getMultiLocs(option.name).size() <= 0) {
                     valid = false;
-                    return "Needs at least 1 location for: " + option.name + " &8'&7" + option.description + "&8'";
+                    return "Needs at least 1 location for MULTILOC: &4&l" + option.name + " &8'&7" + option.description + "&8'";
                 }
             }
         }
