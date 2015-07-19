@@ -42,6 +42,9 @@ public class KohSession extends GameSession {
                 List<Integer> playerCounts = Arrays.asList(new Integer[] {2,3,4,5,6,7,8,9,10});
                 Collections.shuffle(playerCounts);
                 for (int i = 0; i < 9; i++) {
+                    if (playerSize == playerCounts.get(i)) {
+                        continue;
+                    }
                     if (playerSize % playerCounts.get(i) == 0) {
                         setupTeams(playerCounts.get(i));
                         return;
