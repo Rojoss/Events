@@ -4,9 +4,11 @@ import com.clashwars.cwcore.cuboid.Cuboid;
 import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.cwcore.utils.CWUtil;
 import com.clashwars.events.Events;
+import com.clashwars.events.events.GameSession;
 import com.clashwars.events.setup.SetupOption;
 import com.clashwars.events.setup.SetupType;
 import com.clashwars.events.events.EventType;
+import com.clashwars.events.util.Util;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
@@ -36,6 +38,10 @@ public class EventMap {
 
         tag = data.getEventType().toString().toLowerCase() + "-" + name;
         validateMap();
+
+        if (isValid()) {
+            Util.updateSign(this, null);
+        }
     }
 
 
