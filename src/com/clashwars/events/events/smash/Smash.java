@@ -121,7 +121,7 @@ public class Smash extends BaseEvent {
         if (event.getPlayer().isFlying()) {
             return;
         }
-        event.setCancelled(true);
+        //event.setCancelled(true);
 
         //TODO: Double jumping...
     }

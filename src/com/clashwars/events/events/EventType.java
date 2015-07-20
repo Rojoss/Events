@@ -2,6 +2,7 @@ package com.clashwars.events.events;
 
 import com.clashwars.cwcore.utils.CWUtil;
 import com.clashwars.events.events.koh.Koh;
+import com.clashwars.events.events.race.Race;
 import com.clashwars.events.events.smash.Smash;
 import com.clashwars.events.events.spleef.Spleef;
 
@@ -14,6 +15,7 @@ import java.util.List;
 public enum EventType {
     KOH(new Koh()),
     SPLEEF(new Spleef()),
+    RACE(new Race()),
     SMASH(new Smash());
 
 

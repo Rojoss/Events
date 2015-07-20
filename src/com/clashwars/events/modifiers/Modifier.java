@@ -99,8 +99,15 @@ public enum Modifier {
             new ModifierOption[] {
                     new BoolModifierOption(0, "No blindness", false, 0.9f),
                     new BoolModifierOption(1, "Blindness", true, 0.1f)
-            });
+            }),
 
+    //RACE MODIFIERS
+    RACE_POWERUPS(new String[] {"&7The amount of powerups that will drop in the map."},
+            new ModifierOption[] {
+                    new IntModifierOption(0, "No powerups", 0, 0.1f),
+                    new IntModifierOption(1, "Few powerups", 1, 0.5f),
+                    new IntModifierOption(2, "A lot powerups", 2, 0.4f)
+            });
 
     private String[] description;
     private ModifierOption[] options;

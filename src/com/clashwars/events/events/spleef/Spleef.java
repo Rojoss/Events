@@ -5,10 +5,7 @@ import com.clashwars.cwcore.events.ProjectileHitBlockEvent;
 import com.clashwars.cwcore.helpers.CWItem;
 import com.clashwars.cwcore.packet.ParticleEffect;
 import com.clashwars.cwcore.utils.CWUtil;
-import com.clashwars.events.events.BaseEvent;
-import com.clashwars.events.events.EventType;
-import com.clashwars.events.events.GameSession;
-import com.clashwars.events.events.State;
+import com.clashwars.events.events.*;
 import com.clashwars.events.modifiers.Modifier;
 import com.clashwars.events.modifiers.ModifierOption;
 import com.clashwars.events.setup.SetupOption;
@@ -50,6 +47,7 @@ public class Spleef extends BaseEvent {
                     if (!session.isStarted()) {
                         continue;
                     }
+
 
                     HashMap<Modifier, ModifierOption> modifiers = session.getModifierOptions();
                     int decay = modifiers.get(Modifier.SPLEEF_DECAY).getInteger();

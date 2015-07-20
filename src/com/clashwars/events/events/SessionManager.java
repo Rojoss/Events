@@ -5,6 +5,7 @@ import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.events.Events;
 import com.clashwars.events.config.data.SessionCfg;
 import com.clashwars.events.events.koh.KohSession;
+import com.clashwars.events.events.race.RaceSession;
 import com.clashwars.events.events.smash.SmashSession;
 import com.clashwars.events.events.spleef.SpleefSession;
 import org.bukkit.Location;
@@ -64,6 +65,8 @@ public class SessionManager {
             session = new SpleefSession(data, false);
         } else if (type == EventType.SMASH) {
             session = new SmashSession(data, false);
+        } else if (type == EventType.RACE) {
+            session = new RaceSession(data, false);
         }
         if (session != null) {
             if (session.getMap() != null && session.getMap().isValid() && !session.getMap().isClosed()) {
@@ -84,6 +87,8 @@ public class SessionManager {
             session = new SpleefSession(data, true);
         } else if (data.getEventType() == EventType.SMASH) {
             session = new SmashSession(data, true);
+        } else if (data.getEventType() == EventType.RACE) {
+            session = new RaceSession(data, true);
         }
 
         if (session == null || session.getID() < 0) {

@@ -19,7 +19,7 @@ import java.util.List;
 
 /**
  * Base class for the event classes.
- * Each event has a class like Spleef, Koh etc which extends from this class.
+ * Each event has a class like Race, Koh etc which extends from this class.
  * All base things are defined here like each event needs a sign and map setup option.
  */
 public class BaseEvent implements Listener {
