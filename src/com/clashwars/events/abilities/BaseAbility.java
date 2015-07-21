@@ -12,6 +12,7 @@ import com.clashwars.events.player.CWPlayer;
 import com.clashwars.events.util.Util;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.inventory.ItemStack;
 
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class BaseAbility {
+public class BaseAbility implements Listener {
 
     protected Events events = Events.inst();
     protected Ability ability;
@@ -129,14 +130,15 @@ public class BaseAbility {
 
     /** Format the description and usage lines by adding a prefix like Desc: and Usage: And by coloring all lines. */
     public String[] formatDesc(String[] desc, String prefix, String lineColor) {
+        String[] descClone = new String[desc.length];
         for (int i = 0; i < desc.length; i++) {
             if (i == 0 && !prefix.isEmpty()) {
-                desc[i] = prefix + lineColor + desc[i];
+                descClone[i] = prefix + lineColor + desc[i];
             } else {
-                desc[i] = lineColor + desc[i];
+                descClone[i] = lineColor + desc[i];
             }
         }
-        return desc;
+        return descClone;
     }
 
 
@@ -159,11 +161,9 @@ public class BaseAbility {
         }
         GameSession session = cwp.getSession();
 
-        if (allowedStates.contains(session.getState())) {
+        if (!allowedStates.contains(session.getState())) {
             if (session.getState() == State.COUNTDOWN || session.getState() == State.OPENED) {
                 CWUtil.sendActionBar(player, "&4&l", "&cThe game hasn't started yet!");
-            } else if (session.getState() == State.STARTED) {
-                CWUtil.sendActionBar(player, "&4&l", "&cThe game has already started!");
             } else if (session.getState() == State.ON_HOLD) {
                 CWUtil.sendActionBar(player, "&4&l", "&cThe game is currently on hold!");
             } else if (session.getState() == State.ENDED || session.getState() == State.RESETTING ) {
@@ -171,6 +171,7 @@ public class BaseAbility {
             } else if (session.getState() == State.CLOSED) {
                 CWUtil.sendActionBar(player, "&4&l", "&cThe game is closed!");
             }
+            return false;
         }
 
         if (!getEvents().contains(cwp.getSession().getType())) {
