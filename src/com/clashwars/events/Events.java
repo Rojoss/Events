@@ -46,7 +46,9 @@ public class Events extends JavaPlugin {
     @Override
     public void onDisable() {
         getServer().getScheduler().cancelAllTasks();
-        sm.unload();
+        if (sm != null) {
+            sm.unload();
+        }
 
         log("disabled");
     }
