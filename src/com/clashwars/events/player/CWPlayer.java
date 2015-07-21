@@ -1,5 +1,6 @@
 package com.clashwars.events.player;
 
+import com.clashwars.cwcore.CooldownManager;
 import com.clashwars.cwcore.helpers.CWItem;
 import com.clashwars.cwcore.player.Freeze;
 import com.clashwars.cwcore.player.Vanish;
@@ -29,6 +30,7 @@ public class CWPlayer {
     private UUID uuid;
     private PlayerData data;
 
+    private CooldownManager cdm = new CooldownManager();
     private RelogRunnable relogRunnable;
 
     private EventType selectedEvent;
@@ -76,6 +78,12 @@ public class CWPlayer {
     }
 
 
+    /** Get the cooldown manager for this player */
+    public CooldownManager getCDM() {
+        return cdm;
+    }
+
+
     /** Returns true if the player is in a GameSession */
     public boolean inSession() {
         return data.getSessionID() >= 0;
@@ -98,6 +106,7 @@ public class CWPlayer {
         savePlayer();
     }
 
+
     /** Returns true if the player is spectating the current session. Always check first if the player is in a session! */
     public boolean isSpectating() {
         return data.isSpectating();
@@ -108,6 +117,7 @@ public class CWPlayer {
         data.setSpectating(spectating);
         savePlayer();
     }
+
 
     /** Get the player his teleport ID. Can also be seen as a game user ID however it may not be unique if there aren't enough teleport spots. */
     public int getTeleportID() {
