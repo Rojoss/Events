@@ -1,10 +1,13 @@
 package com.clashwars.events.events.smash;
 
+import com.clashwars.cwcore.cuboid.Cuboid;
 import com.clashwars.cwcore.damage.Iattacker;
 import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.cwcore.events.CustomDamageEvent;
 import com.clashwars.cwcore.helpers.CWItem;
+import com.clashwars.cwcore.packet.ParticleEffect;
 import com.clashwars.cwcore.utils.CWUtil;
+import com.clashwars.events.abilities.Ability;
 import com.clashwars.events.events.*;
 import com.clashwars.events.modifiers.Modifier;
 import com.clashwars.events.modifiers.ModifierOption;
@@ -13,17 +16,16 @@ import com.clashwars.events.util.Util;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.BlockState;
 import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerToggleFlightEvent;
+import org.bukkit.event.player.*;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.util.Vector;
@@ -35,10 +37,78 @@ public class Smash extends BaseEvent {
     private Vector[] relativeVectors = new Vector[] {new Vector(1,0,0), new Vector(-1,0,0), new Vector(0,0,1), new Vector(0,0,-1),
             new Vector(0,1,0), new Vector(1,1,0), new Vector(-1,1,0), new Vector(0,1,1), new Vector(0,1,-1)};
     List<UUID> smashedPlayers = new ArrayList<UUID>();
+    List<Item> powerups = new ArrayList<Item>();
 
     public Smash() {
         super();
         setupModifiers("SMASH_");
+
+        abilities.add(Ability.COOKIE);
+        abilities.add(Ability.BREAD);
+        abilities.add(Ability.STEAK);
+        abilities.add(Ability.GOLDEN_CARROT);
+        abilities.add(Ability.GOLDEN_APPLE);
+        abilities.add(Ability.WOOD_SWORD);
+        abilities.add(Ability.STONE_SWORD);
+        abilities.add(Ability.IRON_SWORD);
+        abilities.add(Ability.DIAMOND_SWORD);
+        abilities.add(Ability.TOSS);
+
+        new BukkitRunnable() {
+            int i = 0;
+            @Override
+            public void run(){
+                List<Item> powerupList = new ArrayList<Item>(powerups);
+                for (Item powerup : powerupList) {
+                    if (powerup != null && powerup.isValid()) {
+                        ParticleEffect.FIREWORKS_SPARK.display(0.2f, 0.2f, 0.2f, 0, 20, powerup.getLocation().add(0,1,0), 600);
+                    } else {
+                        powerups.remove(powerup);
+                    }
+                }
+
+                HashMap<Integer, GameSession> sessions = events.sm.getSessions();
+                for (GameSession session : sessions.values()) {
+                    if (session.getType() != EventType.SMASH) {
+                        continue;
+                    }
+                    if (!session.isStarted()) {
+                        continue;
+                    }
+
+                    int powerupModifer = session.getModifierOption(Modifier.SMASH_POWERUPS).getInteger();
+                    if (powerupModifer == 0 && i == 0) {
+                        continue;
+                    }
+
+                    Cuboid map = session.getMap().getCuboid("map");
+                    Block block = CWUtil.random(map.getBlocks());
+                    for (int y = map.getMinY(); y < map.getMaxY(); y++) {
+                        Block b = block.getWorld().getBlockAt(block.getX(), y, block.getZ());
+                        if (b.getType() == Material.AIR) {
+                            continue;
+                        }
+
+                        int attempts = map.getMaxY() - map.getMinY();
+                        int count = 0;
+                        while (b.getType() != Material.AIR && count < attempts) {
+                            b = b.getRelative(BlockFace.UP);
+                            count++;
+                        }
+
+                        Ability ability = CWUtil.random(abilities);
+                        powerups.add(CWUtil.dropItemStack(b.getLocation().add(0.5f, 0.5f, 0.5f), ability.getAbilityClass().getCastItem()));
+                        ParticleEffect.FIREWORKS_SPARK.display(0.1f, 10, 0.1f, 0, 100, b.getLocation().add(0.5f, 5, 0.5f), 600);
+                        b.getWorld().playSound(b.getLocation(), Sound.CHICKEN_EGG_POP, 1, 2);
+                        break;
+                    }
+                }
+                if (i >= 1) {
+                    i = 0;
+                }
+                i++;
+            }
+        }.runTaskTimer(events, 40, 40);
     }
 
     public List<CWItem> getEquipment(GameSession session) {
@@ -168,9 +238,34 @@ public class Smash extends BaseEvent {
         if (!(event.getEntity().getShooter() instanceof Player)) {
             return;
         }
-        if (validateSession((Player)event.getEntity().getShooter(), EventType.KOH, false, State.STARTED)) {
+        if (validateSession((Player)event.getEntity().getShooter(), EventType.SMASH, false, State.STARTED)) {
             event.setCancelled(false);
         }
+    }
+
+    @EventHandler
+    private void itemPickup(PlayerPickupItemEvent event) {
+        if (!validateSession(event.getPlayer(), EventType.SMASH, false, State.STARTED)) {
+            return;
+        }
+        ItemStack firstItem = event.getPlayer().getInventory().getItem(0);
+        if (firstItem != null && firstItem.getType() != Material.AIR) {
+            CWUtil.sendActionBar(event.getPlayer(), "&4&l", "&cYou can only hold one powerup!");
+            return;
+        }
+        event.setCancelled(false);
+    }
+
+    @EventHandler
+    private void itemDrop(PlayerDropItemEvent event) {
+        if (!validateSession(event.getPlayer(), EventType.SMASH, false, State.STARTED)) {
+            return;
+        }
+        if (event.getPlayer().getInventory().getHeldItemSlot() != 0) {
+            return;
+        }
+        event.setCancelled(false);
+        event.getItemDrop().remove();
     }
 
     @EventHandler
