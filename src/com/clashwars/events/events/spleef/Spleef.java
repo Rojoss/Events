@@ -24,6 +24,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -104,6 +105,13 @@ public class Spleef extends BaseEvent {
             return;
         }
         if (validateSession((Player) event.getEntity().getShooter(), EventType.SPLEEF, false, State.STARTED)) {
+            event.setCancelled(false);
+        }
+    }
+
+    @EventHandler
+    private void inventoryClick(InventoryClickEvent event) {
+        if (validateSession((Player)event.getWhoClicked(), EventType.SPLEEF, false)) {
             event.setCancelled(false);
         }
     }

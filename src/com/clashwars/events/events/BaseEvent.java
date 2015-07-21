@@ -27,7 +27,7 @@ public class BaseEvent implements Listener {
 
     protected List<SetupOption> setupOptions = new ArrayList<SetupOption>(); /** Event specific setup options should be added in each event class. */
     protected List<Modifier> modifiers = new ArrayList<Modifier>();
-    protected Set<Ability> abilities = new HashSet<Ability>();
+    protected List<Ability> abilities = new ArrayList<Ability>();
 
     public BaseEvent() {
         events = Events.inst();
@@ -99,7 +99,7 @@ public class BaseEvent implements Listener {
     }
 
 
-    public Set<Ability> getAbilities() {
+    public List<Ability> getAbilities() {
         return abilities;
     }
 
@@ -181,11 +181,6 @@ public class BaseEvent implements Listener {
 
     //Allowed actions for all games
 
-    @EventHandler
-    private void inventoryClick(InventoryClickEvent event) {
-        if (validateSession((Player)event.getWhoClicked(), null, false)) {
-            event.setCancelled(false);
-        }
-    }
+
 
 }
