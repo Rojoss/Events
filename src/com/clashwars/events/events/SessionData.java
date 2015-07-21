@@ -81,7 +81,9 @@ public class SessionData {
         HashMap<Modifier, ModifierOption> map = new HashMap<Modifier, ModifierOption>();
         for (Map.Entry<String, String> entry : modifierValues.entrySet()) {
             Modifier modifier = Modifier.valueOf(entry.getKey());
-            map.put(modifier, modifier.getOptions()[CWUtil.getInt(entry.getValue())]);
+            if (modifier != null && modifier.getOptions() != null) {
+                map.put(modifier, modifier.getOptions()[CWUtil.getInt(entry.getValue())]);
+            }
         }
         return map;
     }

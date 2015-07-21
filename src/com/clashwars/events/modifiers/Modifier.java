@@ -47,19 +47,18 @@ public enum Modifier {
             }),
     SMASH_POWERUPS(new String[] {"&7The amount of powerups that will drop in the map."},
             new ModifierOption[] {
-                    new IntModifierOption(0, "No powerups", 0, 0.1f),
-                    new IntModifierOption(1, "Few powerups", 1, 0.5f),
-                    new IntModifierOption(2, "A lot powerups", 2, 0.4f)
+                    new IntModifierOption(0, "Few powerups", 0, 0.4f),
+                    new IntModifierOption(1, "A lot powerups", 1, 0.6f)
             }),
     SMASH_DESTRUCTION(new String[] {"&7The amount of destruction that will happen", "&7when you smash players in walls and such."},
             new ModifierOption[] {
-                    new IntModifierOption(0, "Little destruction", 0, 0.5f),
-                    new IntModifierOption(1, "A lot destruction", 1, 0.5f)
+                    new IntModifierOption(0, "Little destruction", 0, 0.3f),
+                    new IntModifierOption(1, "A lot destruction", 1, 0.7f)
             }),
     SMASH_BLOCK_REGEN(new String[] {"&7If enabled blocks destroyed will slowly regenerate."},
             new ModifierOption[] {
-                    new BoolModifierOption(0, "Blocks will regenerate", true, 0.6f),
-                    new BoolModifierOption(1, "Blocks won't regenerate", false, 0.4f)
+                    new BoolModifierOption(0, "Blocks will regenerate", true, 0.4f),
+                    new BoolModifierOption(1, "Blocks won't regenerate", false, 0.6f)
             }),
 
 
