@@ -1,32 +1,19 @@
 package com.clashwars.events.events.race;
 
 import com.clashwars.cwcore.cuboid.Cuboid;
-import com.clashwars.cwcore.events.ProjectileHitBlockEvent;
 import com.clashwars.cwcore.helpers.CWItem;
-import com.clashwars.cwcore.packet.ParticleEffect;
 import com.clashwars.cwcore.utils.CWUtil;
 import com.clashwars.events.events.*;
 import com.clashwars.events.modifiers.Modifier;
 import com.clashwars.events.modifiers.ModifierOption;
-import com.clashwars.events.player.CWPlayer;
 import com.clashwars.events.setup.SetupOption;
 import com.clashwars.events.setup.SetupType;
-import com.clashwars.events.util.Util;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -138,7 +125,16 @@ public class Race extends BaseEvent {
         if (!validateSession(p, EventType.RACE, false, State.STARTED)) {
             return;
         }
+        GameSession session = getSession((Player)event.getEntity());
+        HashMap<Modifier, ModifierOption> modifiers = session.getModifierOptions();
+        boolean pvp = modifiers.get(Modifier.RACE_PVP).getBoolean();
+        if (pvp == true && event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
+            event.setCancelled(false);
+        } else if (pvp == false && event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK ) {
+            return;
+        }
         event.setCancelled(false);
+
     }
 }
 

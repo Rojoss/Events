@@ -102,11 +102,23 @@ public enum Modifier {
             }),
 
     //RACE MODIFIERS
+    RACE_SPEED(new String[] {"&7You'll get speed or slowness."},
+            new ModifierOption[] {
+                    new IntModifierOption(0, "Normal speed", 0, 0.6f),
+                    new IntModifierOption(1, "Slow speed", -1, 0.1f),
+                    new IntModifierOption(2, "Fast speed", 1, 0.2f),
+                    new IntModifierOption(3, "Super fast speed", 2, 0.1f)
+            }),
+    RACE_PVP(new String[] {"&7You'll speed or slowness."},
+            new ModifierOption[] {
+                    new BoolModifierOption(0, "Disabled", false, 0.7f),
+                    new BoolModifierOption(0, "Enabled", true, 0.3f),
+            }),
     RACE_POWERUPS(new String[] {"&7The amount of powerups that will drop in the map."},
             new ModifierOption[] {
                     new IntModifierOption(0, "No powerups", 0, 0.1f),
                     new IntModifierOption(1, "Few powerups", 1, 0.5f),
-                    new IntModifierOption(2, "A lot powerups", 2, 0.4f)
+                    new IntModifierOption(2, "A lot of powerups", 2, 0.4f)
             });
 
     private String[] description;
