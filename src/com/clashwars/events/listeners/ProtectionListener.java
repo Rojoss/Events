@@ -35,11 +35,6 @@ public class ProtectionListener implements Listener {
         event.setCancelled(true);
 
         if (event.getEntity() instanceof Player) {
-            ItemStack[] armorItems = ((Player) event.getEntity()).getInventory().getArmorContents();
-            for (ItemStack armor : armorItems) {
-                armor.setDurability((short) 0);
-            }
-
             if (event.getCause() == EntityDamageEvent.DamageCause.FIRE_TICK) {
                 ((Player) event.getEntity()).setFireTicks(0);
             }
@@ -106,10 +101,6 @@ public class ProtectionListener implements Listener {
     private void interact(PlayerInteractEvent event) {
         if (event.getPlayer().getGameMode() == GameMode.CREATIVE) {
             return;
-        }
-
-        if (event.getItem() != null && event.getItem().getType().getMaxDurability() > 0) {
-            event.getItem().setDurability((short) 0);
         }
 
         if (event.getAction() == Action.PHYSICAL) {

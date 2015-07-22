@@ -48,5 +48,6 @@ public class SmashSession extends GameSession {
     public void teleportPlayer(Player player) {
         super.teleportPlayer(player);
         player.setAllowFlight(true);
+        player.setExp(1);
     }
 }

@@ -1,6 +1,7 @@
 package com.clashwars.events;
 
 import com.clashwars.cwcore.CWCore;
+import com.clashwars.events.abilities.Ability;
 import com.clashwars.events.commands.internal.Commands;
 import com.clashwars.events.config.data.MapCfg;
 import com.clashwars.events.config.data.PlayerCfg;
@@ -46,7 +47,9 @@ public class Events extends JavaPlugin {
     @Override
     public void onDisable() {
         getServer().getScheduler().cancelAllTasks();
-        sm.unload();
+        if (sm != null) {
+            sm.unload();
+        }
 
         log("disabled");
     }
@@ -102,6 +105,11 @@ public class Events extends JavaPlugin {
         EventType[] events = EventType.values();
         for (EventType event : events) {
             pm.registerEvents(event.getEventClass(), this);
+        }
+
+        Ability[] abilities = Ability.values();
+        for (Ability ability : abilities) {
+            pm.registerEvents(ability.getAbilityClass(), this);
         }
     }
 

@@ -3,6 +3,7 @@ package com.clashwars.events.events;
 import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.cwcore.helpers.CWItem;
 import com.clashwars.events.Events;
+import com.clashwars.events.abilities.Ability;
 import com.clashwars.events.modifiers.Modifier;
 import com.clashwars.events.player.CWPlayer;
 import com.clashwars.events.setup.SetupOption;
@@ -13,9 +14,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Base class for the event classes.
@@ -28,6 +27,7 @@ public class BaseEvent implements Listener {
 
     protected List<SetupOption> setupOptions = new ArrayList<SetupOption>(); /** Event specific setup options should be added in each event class. */
     protected List<Modifier> modifiers = new ArrayList<Modifier>();
+    protected List<Ability> abilities = new ArrayList<Ability>();
 
     public BaseEvent() {
         events = Events.inst();
@@ -96,6 +96,11 @@ public class BaseEvent implements Listener {
                 modifiers.add(modifier);
             }
         }
+    }
+
+
+    public List<Ability> getAbilities() {
+        return abilities;
     }
 
 
@@ -176,11 +181,6 @@ public class BaseEvent implements Listener {
 
     //Allowed actions for all games
 
-    @EventHandler
-    private void inventoryClick(InventoryClickEvent event) {
-        if (validateSession((Player)event.getWhoClicked(), null, false)) {
-            event.setCancelled(false);
-        }
-    }
+
 
 }

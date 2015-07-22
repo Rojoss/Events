@@ -97,7 +97,7 @@ public class MainListener implements Listener {
 
                 //Event signs
                 for (EventType eventType : EventType.values()) {
-                    if (lines.get(0).equalsIgnoreCase("&5[" + eventType.toString() + "]")) {
+                    if (lines.get(0).equalsIgnoreCase("&5[" + eventType.toString() + "]") || lines.get(0).equalsIgnoreCase("&7[" + eventType.toString() + "]")) {
                         EventMap map = events.mm.getMap(eventType, CWUtil.stripAllColor(lines.get(1)));
                         if (map == null) {
                             player.playSound(player.getLocation(), Sound.ITEM_BREAK, 0.5f, 2);

@@ -1,5 +1,6 @@
 package com.clashwars.events.events.spleef;
 
+import com.clashwars.cwcore.damage.types.CustomDmg;
 import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.cwcore.events.ProjectileHitBlockEvent;
 import com.clashwars.cwcore.helpers.CWItem;
@@ -12,6 +13,7 @@ import com.clashwars.events.setup.SetupOption;
 import com.clashwars.events.setup.SetupType;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -22,13 +24,16 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 public class Spleef extends BaseEvent {
 
@@ -94,57 +99,6 @@ public class Spleef extends BaseEvent {
         return equipment;
     }
 
-
-    /*@EventHandler(priority = EventPriority.HIGH)
-    private void respawn(PlayerRespawnEvent event) {
-        CWPlayer cwp = getCWPlayer(event.getPlayer());
-
-        GameSession session = cwp.getSession();
-        if (session == null || session.getType() != EventType.KOH) {
-            return;
-        }
-
-        //TODO: Put player in spectator if out of lives.
-
-        CWUtil.resetPlayer(event.getPlayer(), GameMode.SURVIVAL);
-        Util.equipItems(event.getPlayer(), getEquipment(session));
-
-        Location loc = session.getTeleportLocation(cwp);
-        Debug.bc(loc);
-        event.setRespawnLocation(loc);
-    }
-    */
-
-    @EventHandler
-    private void entityDamage(EntityDamageEvent event) {
-        if (!(event.getEntity() instanceof Player)) {
-            return;
-        }
-
-        if (event.getCause() != EntityDamageEvent.DamageCause.FALL) {
-            return;
-        }
-
-        Player player = (Player)event.getEntity();
-        if (!validateSession(player, EventType.SPLEEF, false, State.STARTED)) {
-            return;
-        }
-
-        if (event.getDamage() <= 1) {
-            return;
-        }
-
-        GameSession session = getSession(player);
-
-        session.switchToSpectator(player);
-        session.broadcast("&3" + player.getDisplayName() + " &bhas fallen!", true);
-
-        if (session.getPlayerCount(false) == 1) {
-            session.end(session.getAllPlayers(false));
-        }
-
-    }
-
     @EventHandler
     private void projectileShoot(ProjectileLaunchEvent event) {
         if (!(event.getEntity().getShooter() instanceof Player)) {
@@ -156,7 +110,46 @@ public class Spleef extends BaseEvent {
     }
 
     @EventHandler
+    private void inventoryClick(InventoryClickEvent event) {
+        if (validateSession((Player)event.getWhoClicked(), EventType.SPLEEF, false)) {
+            event.setCancelled(false);
+        }
+    }
+
+    @EventHandler
     private void playerMove(PlayerMoveEvent event) {
+        Player player = event.getPlayer();
+
+        //Get the player that broke the block when player is falling.
+        if (event.getFrom().getBlockY() != event.getTo().getBlockY() && event.getTo().getY() < event.getFrom().getY()) {
+            if (validateSession(player, EventType.SPLEEF, false, State.STARTED)) {
+                GameSession session = getSession(player);
+
+                if (event.getTo().getY() < session.getMap().getCuboid("floor").getMinY() + 1) {
+                    Block block = event.getTo().getBlock();
+                    if (block.hasMetadata("spleefer")) {
+                        OfflinePlayer spleefer = events.getServer().getOfflinePlayer(block.getMetadata("spleefer").get(0).asString());
+                        if (spleefer != null) {
+                            new CustomDmg(event.getPlayer(), 0, "{0} got spleefed by {1}!", "", spleefer);
+                            session.broadcast("&3" + player.getDisplayName() + " &bgot spleef by &3" + spleefer.getName() + "!", true);
+                        } else {
+                            new CustomDmg(player, 0, "{0} has fallen!", "");
+                            session.broadcast("&3" + player.getDisplayName() + " &bhas fallen!", true);
+                        }
+                    } else {
+                        new CustomDmg(player, 0, "{0} has fallen!", "");
+                        session.broadcast("&3" + player.getDisplayName() + " &bhas fallen!", true);
+                    }
+
+                    session.setPotentialWinners(session.getAllPlayers(false));
+                    session.removePotentialWinner(player.getUniqueId());
+                    session.switchToSpectator(player);
+                    event.setCancelled(true);
+                }
+            }
+        }
+
+        //Trail stuff
         final Block blockBelow = event.getFrom().getBlock().getRelative(BlockFace.DOWN);
         if (blockBelow.getType() != Material.SNOW_BLOCK) {
             return;
@@ -166,21 +159,17 @@ public class Spleef extends BaseEvent {
             return;
         }
 
-        if (!validateSession(event.getPlayer(), EventType.SPLEEF, false, State.STARTED)) {
+        if (!validateSession(player, EventType.SPLEEF, false, State.STARTED)) {
             return;
         }
-
-        GameSession session = getSession(event.getPlayer());
-        if (session == null) {
-            return;
-        }
+        GameSession session = getSession(player);
 
         int trailOption = session.getModifierOption(Modifier.SPLEEF_TRAIL).getInteger();
         if (trailOption == 0) {
             return;
         }
         if (trailOption == 2 || (trailOption == 1 && CWUtil.randomFloat() <= 0.5f)) {
-            destroyBlock(event.getPlayer(), blockBelow);
+            destroyBlock(player, blockBelow);
             new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -275,7 +264,8 @@ public class Spleef extends BaseEvent {
 
     private void destroyBlock(Player player, Block block) {
         block.getWorld().spawnFallingBlock(block.getLocation().add(0,-0.1f,0), block.getType(), block.getData());
-        block.setType(Material.AIR);
+        block.setTypeId(0, false);
+        block.setMetadata("spleefer", new FixedMetadataValue(events, player.getName()));
 
         if (player != null && CWUtil.randomFloat() <= 0.1f) {
             new CWItem(Material.SNOW_BALL, 1).giveToPlayer(player);

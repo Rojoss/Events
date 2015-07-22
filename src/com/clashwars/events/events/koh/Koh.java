@@ -22,6 +22,7 @@ import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.potion.PotionType;
@@ -233,6 +234,13 @@ public class Koh extends BaseEvent {
             return;
         }
         if (validateSession((Player)event.getEntity().getShooter(), EventType.KOH, false, State.STARTED)) {
+            event.setCancelled(false);
+        }
+    }
+
+    @EventHandler
+    private void inventoryClick(InventoryClickEvent event) {
+        if (validateSession((Player)event.getWhoClicked(), EventType.KOH, false)) {
             event.setCancelled(false);
         }
     }

@@ -1,5 +1,6 @@
 package com.clashwars.events.util;
 
+import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.cwcore.helpers.CWItem;
 import com.clashwars.cwcore.utils.CWUtil;
 import com.clashwars.events.Events;
@@ -35,20 +36,26 @@ public class Util {
             return;
         }
         Sign sign = (Sign)block.getState();
-        sign.setLine(0, CWUtil.integrateColor("&5[" + CWUtil.capitalize(map.getType().toString().toLowerCase()) + "]"));
         sign.setLine(1, CWUtil.integrateColor(map.getName()));
         if (session == null) {
-            sign.setLine(2, CWUtil.integrateColor("&a0&8/&2" + map.getMaxPlayers()));
+            sign.setLine(0, CWUtil.integrateColor("&7[" + CWUtil.capitalize(map.getType().toString().toLowerCase()) + "]"));
+            sign.setLine(2, CWUtil.integrateColor("&70&8/&7" + map.getMaxPlayers()));
             if (map.isClosed() || !map.validateMap().isEmpty()) {
                 sign.setLine(3, CWUtil.integrateColor(State.CLOSED.getSignText()));
             } else {
                 sign.setLine(3, CWUtil.integrateColor(State.OPENED.getSignText()));
             }
         } else {
-            if (session.getSpecPlayerSize() > 0) {
-                sign.setLine(2, CWUtil.integrateColor("&a" + session.getPlayerCount(false) + "&8/&2" + map.getMaxPlayers() + " &d+" + session.getSpecPlayerSize()));
+            if (session.getPlayerCount(false) <= 0) {
+                sign.setLine(0, CWUtil.integrateColor("&7[" + CWUtil.capitalize(map.getType().toString().toLowerCase()) + "]"));
+                sign.setLine(2, CWUtil.integrateColor("&70&8/&7" + map.getMaxPlayers()));
             } else {
-                sign.setLine(2, CWUtil.integrateColor("&a" + session.getPlayerCount(false) + "&8/&2" + map.getMaxPlayers()));
+                sign.setLine(0, CWUtil.integrateColor("&5[" + CWUtil.capitalize(map.getType().toString().toLowerCase()) + "]"));
+                if (session.getSpecPlayerSize() > 0) {
+                    sign.setLine(2, CWUtil.integrateColor("&a&l" + session.getPlayerCount(false) + "&8/&2" + map.getMaxPlayers() + " &d+" + session.getSpecPlayerSize()));
+                } else {
+                    sign.setLine(2, CWUtil.integrateColor("&a&l" + session.getPlayerCount(false) + "&8/&2" + map.getMaxPlayers()));
+                }
             }
             sign.setLine(3, CWUtil.integrateColor(session.getState().getSignText()));
         }
