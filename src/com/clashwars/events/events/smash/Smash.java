@@ -180,6 +180,13 @@ public class Smash extends BaseEvent {
         if (validateSession((Player)event.getEntity(), EventType.SMASH, false, State.STARTED)) {
             event.setCancelled(false);
         }
+
+        if (event.getCause() == EntityDamageEvent.DamageCause.SUFFOCATION) {
+            Location loc = event.getEntity().getWorld().getHighestBlockAt(event.getEntity().getLocation()).getLocation().add(0,1,0);
+            loc.setYaw(event.getEntity().getLocation().getYaw());
+            loc.setPitch(event.getEntity().getLocation().getPitch());
+            event.getEntity().teleport(loc);
+        }
     }
 
     @EventHandler
@@ -427,7 +434,7 @@ public class Smash extends BaseEvent {
                                     b.setData(data);
                                 }
                             }
-                        }.runTaskLater(events, CWUtil.random(200, 600));
+                        }.runTaskLater(events, CWUtil.random(600, 1000));
                     }
 
                     block.setType(Material.AIR);
