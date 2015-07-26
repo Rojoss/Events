@@ -63,7 +63,7 @@ public class Spleef extends BaseEvent {
 
                         if (decay > 0) {
                             Block block = CWUtil.random(blocks);
-                            destroyBlock(null, block);
+                            destroyBlock(null, block, false);
                         }
 
                         if (change > 0) {
@@ -169,7 +169,7 @@ public class Spleef extends BaseEvent {
             return;
         }
         if (trailOption == 2 || (trailOption == 1 && CWUtil.randomFloat() <= 0.5f)) {
-            destroyBlock(player, blockBelow);
+            destroyBlock(player, blockBelow, false);
             new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -189,7 +189,7 @@ public class Spleef extends BaseEvent {
             return;
         }
         event.setCancelled(false);
-        destroyBlock(event.getPlayer(), block);
+        destroyBlock(event.getPlayer(), block, true);
     }
 
     @EventHandler
@@ -259,15 +259,15 @@ public class Spleef extends BaseEvent {
                     continue;
                 }
 
-                destroyBlock(player, block);
+                destroyBlock(player, block, false);
             }
         }
     }
 
-    private void destroyBlock(Player player, Block block) {
-        block.setTypeIdAndData(9, (byte)7, false);
+    private void destroyBlock(Player player, Block block, boolean giveSnowball) {
+        block.setTypeIdAndData(9, (byte) 7, false);
 
-        if (player != null && CWUtil.randomFloat() <= 0.1f) {
+        if (giveSnowball && player != null && CWUtil.randomFloat() <= 0.1f) {
             new CWItem(Material.SNOW_BALL, 1).giveToPlayer(player);
         }
     }
