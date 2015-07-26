@@ -188,7 +188,15 @@ public class Smash extends BaseEvent {
             return;
         }
 
-        event.getPlayer().setLevel(event.getPlayer().getLevel() + (int)Math.ceil(event.getDamage()));
+        int dmg = (int)Math.ceil(event.getDamage());
+        if (event.getDmgClass() instanceof Iattacker) {
+            Player attacker = ((Iattacker)event.getDmgClass()).getAttacker().getPlayer();
+            if (attacker.getItemInHand() == null || attacker.getItemInHand().getType() == Material.AIR) {
+                dmg += 1;
+            }
+        }
+
+        event.getPlayer().setLevel(event.getPlayer().getLevel() + dmg);
 
         if (event.getDmgClass() instanceof Iattacker) {
             if (((Iattacker)event.getDmgClass()).hasAttacker()) {
@@ -288,7 +296,7 @@ public class Smash extends BaseEvent {
         }
         player.playSound(player.getLocation(), Sound.ENDERDRAGON_WINGS, 0.6f, 1.1f);
         Vector dir = player.getLocation().getDirection();
-        player.setVelocity(player.getVelocity().add(new Vector(dir.getX() * 1.4f, 0.9f, dir.getZ() * 1.4f)));
+        player.setVelocity(player.getVelocity().add(new Vector(dir.getX() * 1.2f, 0.8f, dir.getZ() * 1.2f)));
         player.setExp(0);
         player.setAllowFlight(false);
     }
@@ -323,15 +331,17 @@ public class Smash extends BaseEvent {
                     double radius = 0;
                     int level = player.getLevel();
                     if (level >= 250) {
-                        radius = 3.5f;
+                        radius = 4f;
                     } else if (level >= 200) {
+                        radius = 3.5f;
+                    } else if (level >= 150) {
                         radius = 3f;
-                    } else if (level >= 160) {
+                    } else if (level >= 100) {
                         radius = 2.5f;
-                    } else if (level >= 120) {
+                    } else if (level >= 50) {
                         radius = 2f;
-                    } else if (level >= 80) {
-                        radius = 1.5f;
+                    } else {
+                        radius = 1f;
                     }
 
                     if (session.getModifierOption(Modifier.SMASH_DESTRUCTION).getInteger() == 1) {
