@@ -78,6 +78,11 @@ public class EventMap {
                     valid = false;
                     return "Needs at least 1 location for MULTILOC: &4&l" + option.name + " &8'&7" + option.description + "&8'";
                 }
+            } else if (option.type == SetupType.MULTI_CUBOID) {
+                if (getMultiCuboids(option.name).size() <= 0) {
+                    valid = false;
+                    return "Needs at least 1 cuboid for MULTICUBOID: &4&l" + option.name + " &8'&7" + option.description + "&8'";
+                }
             }
         }
         valid = true;
@@ -197,6 +202,41 @@ public class EventMap {
         }
         return false;
     }
+
+
+
+    /** Get a list of multiple cuboids from a MULTI_CUBOID setup option. */
+    public HashMap<Integer, Cuboid> getMultiCuboids(String name) {
+        HashMap<Integer, Cuboid> cubs = new HashMap<Integer, Cuboid>();
+        for (Map.Entry<String, Cuboid> entry : data.getCuboids().entrySet()) {
+            if (entry.getKey().startsWith(name + "_")) {
+                String[] split = entry.getKey().split("_");
+                if (split.length > 1 && CWUtil.getInt(split[1]) >= 0) {
+                    cubs.put(CWUtil.getInt(split[1]), entry.getValue());
+                }
+            }
+        }
+        return cubs;
+    }
+
+    /** Get a specific cuboid from a multi cuboid. */
+    public Cuboid getMultiCuboid(String name, int ID) {
+        if (data.getCuboids().containsKey(name + "_" + ID)) {
+            return data.getCuboids().get(name + "_" + ID);
+        }
+        return null;
+    }
+
+    /** Set a multi cuboid for the map. It will only set the cuboid if the map has a setupoption of type MULTI_CUBOID with the specified name. */
+    public boolean setMultiCuboid(String name, int ID, Cuboid cuboid) {
+        if (getType().getEventClass().hasSetupOption(SetupType.MULTI_CUBOID, name)) {
+            data.setCuboid(name + "_" + ID, cuboid);
+            save();
+            return true;
+        }
+        return false;
+    }
+
 
 
     /** Get a block from a BLOCK_LOC setup option. */

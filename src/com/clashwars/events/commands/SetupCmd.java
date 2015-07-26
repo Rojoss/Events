@@ -305,12 +305,79 @@ public class SetupCmd extends PlayerCmd {
             int id = CWUtil.getInt(args[2]);
             if (id < 0) {
                 player.sendMessage(Util.formatMsg("&cInvalid ID! &7Specify a positive number as ID."));
+                return;
             }
 
             if (map.setMultiLoc(args[1], id, player.getLocation())) {
                 player.sendMessage(Util.formatMsg("&6Location &a" + args[1] + " &a&l" + id + " &6set!"));
             } else {
                 player.sendMessage(Util.formatMsg("&cInvalid name! &7This event doesn't require a multi loc with the name " + args[1] + "!"));
+            }
+            return;
+        }
+
+
+        if (args[0].equalsIgnoreCase("multicuboid")) {
+            if (cwp.getSelectedEvent() == null || cwp.getSelectedMap() == null || events.mm.getMap(cwp.getSelectedEvent(), cwp.getSelectedMap()) == null) {
+                player.sendMessage(Util.formatMsg("&cNo map selected! &7Select one using &c/setup select&7!"));
+                return;
+            }
+            EventMap map = events.mm.getMap(cwp.getSelectedEvent(), cwp.getSelectedMap());
+
+            if (args.length < 2) {
+                player.sendMessage(Util.formatMsg("&cInvalid usage! &7/setup cuboid {name} [ID]"));
+                return;
+            }
+
+            if (!map.getType().getEventClass().hasSetupOption(SetupType.MULTI_CUBOID, args[1])) {
+                player.sendMessage(Util.formatMsg("&cInvalid name! &7This event doesn't require a multi cuboid with the name " + args[1] + "!"));
+                return;
+            }
+
+            if (args.length < 3) {
+                HashMap<Integer, Cuboid> cuboids = map.getMultiCuboids(args[1]);
+                player.sendMessage(CWUtil.integrateColor("&8===== &4&lMultiCuboid Locations &8====="));
+                for (Map.Entry<Integer, Cuboid> loc : cuboids.entrySet()) {
+                    player.sendMessage(CWUtil.integrateColor("&6&l" + loc.getKey() + "&8: &eLoc1:&7" + loc.getValue().getMinX() + "&8,&7" + loc.getValue().getMinY() + "&8,&7" + loc.getValue().getMinZ()
+                        + " &eLoc2:&7" + loc.getValue().getMaxX() + "&8,&7" + loc.getValue().getMaxY() + "&8,&7" + loc.getValue().getMaxZ()
+                    ));
+                }
+                return;
+            }
+
+            int id = CWUtil.getInt(args[2]);
+            if (id < 0) {
+                player.sendMessage(Util.formatMsg("&cInvalid ID! &7Specify a positive number as ID."));
+                return;
+            }
+
+            Selection selection = events.getCore().getSel();
+            SelectionStatus status = selection.getStatus(player);
+            if (status == SelectionStatus.NONE) {
+                player.sendMessage(Util.formatMsg("&cNo cuboid selected! &7Use &c/cww &7to get the wand and select two points."));
+                return;
+            }
+
+            if (status == SelectionStatus.POS2) {
+                player.sendMessage(Util.formatMsg("&cInvalid cuboid! &7You are missing &cposition 1&7!"));
+                return;
+            }
+
+            if (status == SelectionStatus.POS1) {
+                player.sendMessage(Util.formatMsg("&cInvalid cuboid! &7You are missing &cposition 2&7!"));
+                return;
+            }
+
+            Cuboid cuboid = selection.getSelection(player);
+            if (cuboid == null) {
+                player.sendMessage(Util.formatMsg("&cInvalid cuboid! &7Try selecting it again!"));
+                return;
+            }
+
+            if (map.setMultiCuboid(args[1], id, cuboid)) {
+                player.sendMessage(Util.formatMsg("&6Cuboid &a" + args[1] + " &a&l" + id + " &6set!"));
+            } else {
+                player.sendMessage(Util.formatMsg("&cInvalid name! &7This event doesn't require a multi cuboid with the name " + args[1] + "!"));
             }
             return;
         }
@@ -464,6 +531,7 @@ public class SetupCmd extends PlayerCmd {
         player.sendMessage(CWUtil.integrateColor("&6/setup block {name} &8- &7Set a block location for selected event/map."));
         player.sendMessage(CWUtil.integrateColor("&6/setup cuboid {name} &8- &7Set a cuboid for selected event/map."));
         player.sendMessage(CWUtil.integrateColor("&6/setup multiloc {name} [ID] &8- &7Modify multiloc locations."));
+        player.sendMessage(CWUtil.integrateColor("&6/setup multicuboid {name} [ID] &8- &7Modify multicuboid locations."));
         player.sendMessage(CWUtil.integrateColor("&8--- &7&lMap properties &8---"));
         player.sendMessage(CWUtil.integrateColor("&6/setup slots {min|max|vip} {amount} &8- &7Set slot amounts."));
         player.sendMessage(CWUtil.integrateColor("&6/setup authors {author,author,etc..} &8- &7Set/get list of authors"));
