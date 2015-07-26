@@ -1,5 +1,8 @@
 package com.clashwars.events.abilities;
 
+import com.clashwars.events.abilities.race.FishingRod;
+import com.clashwars.events.abilities.race.Rush;
+import com.clashwars.events.abilities.race.Swap;
 import com.clashwars.events.abilities.smash.*;
 import com.clashwars.events.abilities.smash.food.*;
 import com.clashwars.events.abilities.smash.weapons.DiamondSword;
@@ -17,7 +20,11 @@ public enum Ability {
     STONE_SWORD(new StoneSword(), ""),
     IRON_SWORD(new IronSword(), ""),
     DIAMOND_SWORD(new DiamondSword(), ""),
-    TOSS(new Toss(), "{0} was tossed by {1}");
+    TOSS(new Toss(), "{0} was tossed by {1}"),
+    SWAP(new Swap(), "{0} was swapped by {1}"),
+    RUSH(new Rush(), ""),
+    FISHINGROD(new FishingRod(), "{0} was pulled by {1}");
+
 
     private BaseAbility abilityClass;
     private String deathMessage;

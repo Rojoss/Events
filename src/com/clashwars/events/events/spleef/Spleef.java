@@ -131,7 +131,7 @@ public class Spleef extends BaseEvent {
                         OfflinePlayer spleefer = events.getServer().getOfflinePlayer(block.getMetadata("spleefer").get(0).asString());
                         if (spleefer != null) {
                             new CustomDmg(event.getPlayer(), 0, "{0} got spleefed by {1}!", "", spleefer);
-                            session.broadcast("&3" + player.getDisplayName() + " &bgot spleef by &3" + spleefer.getName() + "!", true);
+                            session.broadcast("&3" + player.getDisplayName() + " &bgot spleefed by &3" + spleefer.getName() + "!", true);
                         } else {
                             new CustomDmg(player, 0, "{0} has fallen!", "");
                             session.broadcast("&3" + player.getDisplayName() + " &bhas fallen!", true);
@@ -228,8 +228,10 @@ public class Spleef extends BaseEvent {
         if (!(event.getProjectile().getShooter() instanceof Player)) {
             return;
         }
-        Location blockCenter = event.getBlock().getLocation().getBlock().getLocation().add(0.5f, 0.5f, 0.5f);
-        destroySnowInRadius((Player)event.getProjectile().getShooter(), blockCenter, 2);
+        if (validateSession((Player)event.getProjectile().getShooter(), EventType.SPLEEF, false, State.STARTED)) {
+            Location blockCenter = event.getBlock().getLocation().getBlock().getLocation().add(0.5f, 0.5f, 0.5f);
+            destroySnowInRadius((Player)event.getProjectile().getShooter(), blockCenter, 2);
+        }
     }
 
     @EventHandler

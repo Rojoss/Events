@@ -87,7 +87,7 @@ public enum Modifier {
                     new IntModifierOption(1, "Few changes", 1, 0.3f),
                     new IntModifierOption(2, "Many changes", 2, 0.1f)
             }),
-    SPLEEF_SPEED(new String[] {"&7You'll speed or slowness."},
+    SPLEEF_SPEED(new String[] {"&7You'll get speed or slowness."},
             new ModifierOption[] {
                     new IntModifierOption(0, "Normal speed", 0, 0.6f),
                     new IntModifierOption(1, "Slow speed", -1, 0.1f),
@@ -108,10 +108,10 @@ public enum Modifier {
                     new IntModifierOption(2, "Fast speed", 1, 0.2f),
                     new IntModifierOption(3, "Super fast speed", 2, 0.1f)
             }),
-    RACE_PVP(new String[] {"&7You'll speed or slowness."},
+    RACE_PVP(new String[] {"&7If Player damage is enabled."},
             new ModifierOption[] {
                     new BoolModifierOption(0, "Disabled", false, 0.7f),
-                    new BoolModifierOption(0, "Enabled", true, 0.3f),
+                    new BoolModifierOption(1, "Enabled", true, 0.3f),
             }),
     RACE_POWERUPS(new String[] {"&7The amount of powerups that will drop in the map."},
             new ModifierOption[] {

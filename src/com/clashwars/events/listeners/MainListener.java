@@ -19,6 +19,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.util.ArrayList;
@@ -32,6 +33,13 @@ public class MainListener implements Listener {
         this.events = events;
     }
 
+
+    @EventHandler
+    private void itemDespawn(ItemDespawnEvent event) {
+        if (event.getEntity().hasMetadata("permanent")) {
+            event.setCancelled(true);
+        }
+    }
 
     @EventHandler
     private void playerLeave(PlayerLeaveEvent event) {
