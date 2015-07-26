@@ -2,6 +2,8 @@ package com.clashwars.events.listeners;
 
 import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.events.Events;
+import com.clashwars.events.player.CWPlayer;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -43,6 +45,18 @@ public class ProtectionListener implements Listener {
                 ((Player) event.getEntity()).damage(((Player) event.getEntity()).getHealth());
                 event.setCancelled(false);
             }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    private void spectatorDamage(EntityDamageByEntityEvent event) {
+        if (!(event.getDamager() instanceof Player)) {
+            return;
+        }
+        Player damager = (Player)event.getDamager();
+        CWPlayer cwd = events.pm.getPlayer(damager);
+        if (cwd.isSpectating()) {
+            event.setCancelled(true);
         }
     }
 

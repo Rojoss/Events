@@ -1,5 +1,6 @@
 package com.clashwars.events.events;
 
+import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.cwcore.packet.Title;
 import com.clashwars.cwcore.player.Vanish;
 import com.clashwars.cwcore.scoreboard.CWBoard;
@@ -190,7 +191,7 @@ public class GameSession {
 
         if (isOnHold()) {
             //Joining back while the session is on hold. (Only allow previous players to join. Others will be put in spectate mode)
-            if (hasPlayer(uuid, true, true, true)) {
+            if (hasPlayer(uuid, true, true, false)) {
                 cwp.setSpectating(false);
                 if (hasVip(uuid)) {
                     broadcast("&6&l+&3" + player.getDisplayName(), true);
