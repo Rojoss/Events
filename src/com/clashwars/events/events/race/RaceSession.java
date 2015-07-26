@@ -44,7 +44,7 @@ public class RaceSession extends GameSession {
         File saveDir = new File(events.getDataFolder(), "schematics");
         saveDir.mkdir();
         try {
-            CWWorldEdit.saveSchematic(beginWall.getMinLoc(), beginWall.getMaxLoc(), new File(saveDir, "race-wall"));
+            CWWorldEdit.saveSchematic(beginWall.getMinLoc(), beginWall.getMaxLoc(), new File(saveDir, "race-wall-" + getMap().getName()));
         } catch (FilenameException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -111,7 +111,7 @@ public class RaceSession extends GameSession {
         File saveDir = new File(events.getDataFolder(), "schematics");
         saveDir.mkdir();
         try {
-            CWWorldEdit.loadSchematic(new File(saveDir, "race-wall"), beginWall.getMinLoc());
+            CWWorldEdit.loadSchematic(new File(saveDir, "race-wall-" + getMap().getName()), beginWall.getMinLoc());
         } catch (FilenameException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -121,6 +121,7 @@ public class RaceSession extends GameSession {
         } catch (MaxChangedBlocksException e) {
             e.printStackTrace();
         }
+        delete();
         return true;
     }
 }

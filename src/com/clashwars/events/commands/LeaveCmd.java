@@ -19,7 +19,7 @@ public class LeaveCmd extends PlayerCmd {
 
         GameSession session = cwp.getSession();
         if (session != null) {
-            session.leave(player);
+            session.leave(player, false);
         }
 
         cwp.removeSession();

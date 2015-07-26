@@ -1,6 +1,5 @@
 package com.clashwars.events.events;
 
-import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.cwcore.packet.Title;
 import com.clashwars.cwcore.player.Vanish;
 import com.clashwars.cwcore.scoreboard.CWBoard;
@@ -265,7 +264,7 @@ public class GameSession {
     }
 
     /** Remove the given player from this session. */
-    public void leave(OfflinePlayer player) {
+    public void leave(OfflinePlayer player, boolean force) {
         UUID uuid = player.getUniqueId();
         CWPlayer cwp = events.pm.getPlayer(player);
 
@@ -277,13 +276,16 @@ public class GameSession {
 
         if (hasPlayer(uuid)) {
             removePlayer(uuid);
-            broadcast("&4&l-&7" + playerName, true);
+            if (!force)
+                broadcast("&4&l-&7" + playerName, true);
         } else if (hasVip(uuid)) {
             removeVip(uuid);
-            broadcast("&4&l-&7" + playerName, true);
+            if (!force)
+                broadcast("&4&l-&7" + playerName, true);
         } else if (hasSpectator(uuid)) {
             removeSpectator(uuid);
-            broadcast("&4&l-&7" + playerName  + " &8(&dS&8)", true);
+            if (!force)
+                broadcast("&4&l-&7" + playerName  + " &8(&dS&8)", true);
         }
 
         if (board != null) {
@@ -293,6 +295,9 @@ public class GameSession {
         Util.updateSign(map, session);
         save();
 
+        if (force) {
+            return;
+        }
         if (getPlayerCount(false) <= 0) {
             //If no players left reset the session.
             reset();
@@ -438,13 +443,14 @@ public class GameSession {
     /** Reset the game/map. */
     public boolean reset() {
         if (isResetting()) {
+            Bukkit.broadcastMessage("GameSession > Already resetting!");
             return false;
         }
         setState(State.RESETTING);
         broadcast("&6&lThe map is resetting!", true);
 
         for (Player player : getAllOnlinePlayers(true)) {
-            leave(player);
+            leave(player, true);
         }
         return true;
     }
@@ -455,7 +461,7 @@ public class GameSession {
             session = null;
             timer.cancel();
             for (Player player : getAllOnlinePlayers(true)) {
-                leave(player);
+                leave(player, true);
             }
             if (board != null) {
                 board.hide(null);

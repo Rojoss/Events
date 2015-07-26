@@ -24,7 +24,7 @@ public class RelogRunnable extends BukkitRunnable {
             return;
         }
         if (!cwp.isOnline() && session.hasPlayer(cwp.getUUID(), true, true, true)) {
-            session.leave(cwp.getOfflinePlayer());
+            session.leave(cwp.getOfflinePlayer(), false);
         }
     }
 }

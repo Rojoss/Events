@@ -54,7 +54,7 @@ public class MainListener implements Listener {
         //Logging off in a session but a session that isn't started. (Remove player from session)
         if (!session.isStarted()) {
             player.sendMessage(Util.formatMsg("&6You left the game!"));
-            session.leave(player);
+            session.leave(player, false);
             return;
         }
 
