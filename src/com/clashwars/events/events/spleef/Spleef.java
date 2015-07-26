@@ -265,9 +265,7 @@ public class Spleef extends BaseEvent {
     }
 
     private void destroyBlock(Player player, Block block) {
-        block.getWorld().spawnFallingBlock(block.getLocation().add(0,-0.1f,0), block.getType(), block.getData());
-        block.setTypeId(0, false);
-        block.setMetadata("spleefer", new FixedMetadataValue(events, player.getName()));
+        block.setTypeIdAndData(9, (byte)7, false);
 
         if (player != null && CWUtil.randomFloat() <= 0.1f) {
             new CWItem(Material.SNOW_BALL, 1).giveToPlayer(player);
