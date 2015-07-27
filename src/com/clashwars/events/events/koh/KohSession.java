@@ -108,23 +108,4 @@ public class KohSession extends GameSession {
             Freeze.freeze(player.getUniqueId(), player.getLocation());
         }
     }
-
-    private void setupTeams(int playersPerTeam) {
-        List<UUID> allPlayers = getAllPlayers(false);
-
-        int count = 0;
-        int id = 0;
-        String team = "";
-
-        for (UUID uuid : allPlayers) {
-            if (team.isEmpty() || count % playersPerTeam == 0) {
-                String prefix = CWUtil.getPrefix(true, id);
-                board.addTeam("team-" + id, prefix, "", prefix + CWUtil.getTeamName(prefix), false, false);
-                team = "team-" + id;
-                id++;
-            }
-            board.joinTeam(team, events.getServer().getOfflinePlayer(uuid));
-            count++;
-        }
-    }
 }

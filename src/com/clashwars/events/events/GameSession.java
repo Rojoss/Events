@@ -551,6 +551,25 @@ public class GameSession {
         return loc;
     }
 
+    public void setupTeams(int playersPerTeam) {
+        List<UUID> allPlayers = getAllPlayers(false);
+
+        int count = 0;
+        int id = 0;
+        String team = "";
+
+        for (UUID uuid : allPlayers) {
+            if (team.isEmpty() || count % playersPerTeam == 0) {
+                String prefix = CWUtil.getPrefix(true, id);
+                board.addTeam("team-" + id, prefix, "", prefix + CWUtil.getTeamName(prefix), false, false);
+                team = "team-" + id;
+                id++;
+            }
+            board.joinTeam(team, events.getServer().getOfflinePlayer(uuid));
+            count++;
+        }
+    }
+
     /** Broadcast a message to all players in the session */
     public void broadcast(String message, boolean spectators) {
         List<Player> allPlayers = getAllOnlinePlayers(spectators);

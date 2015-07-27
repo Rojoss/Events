@@ -1,4 +1,4 @@
-package com.clashwars.events.events._catch;
+package com.clashwars.events.events._duckhunt;
 
 import com.clashwars.cwcore.helpers.CWEntity;
 import com.clashwars.cwcore.scoreboard.Criteria;
@@ -8,13 +8,15 @@ import com.clashwars.events.events.SessionData;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
-public class CatchSession extends GameSession {
+public class DuckHuntSession extends GameSession {
 
     public List<CWEntity> chickens = new ArrayList<CWEntity>();
 
-    public CatchSession(SessionData data, boolean loadedFromConfig) {
+    public DuckHuntSession(SessionData data, boolean loadedFromConfig) {
         super(data, loadedFromConfig);
         session = this;
         maxTime = 300;
@@ -24,7 +26,7 @@ public class CatchSession extends GameSession {
     public void lock() {
         super.lock();
 
-        Objective sidebarObj = board.addObjective("points-side", "&a&lCHICKEN CAUGHT", Criteria.DUMMY, DisplaySlot.SIDEBAR, true);
+        Objective sidebarObj = board.addObjective("points-side", "&a&lCHICKEN SHOT", Criteria.DUMMY, DisplaySlot.SIDEBAR, true);
 
         List<UUID> playerList = getAllPlayers(false);
         for (UUID player : playerList) {

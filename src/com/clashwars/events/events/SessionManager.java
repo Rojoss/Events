@@ -5,6 +5,7 @@ import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.events.Events;
 import com.clashwars.events.config.data.SessionCfg;
 import com.clashwars.events.events._catch.CatchSession;
+import com.clashwars.events.events._duckhunt.DuckHuntSession;
 import com.clashwars.events.events.koh.KohSession;
 import com.clashwars.events.events.race.RaceSession;
 import com.clashwars.events.events.smash.SmashSession;
@@ -59,18 +60,7 @@ public class SessionManager {
         data.setSessionID(sessionID);
         sessionCfg.setSession(sessionID, data);
 
-        GameSession session = null;
-        if (type == EventType.KOH) {
-            session = new KohSession(data, false);
-        } else if (type == EventType.SPLEEF) {
-            session = new SpleefSession(data, false);
-        } else if (type == EventType.SMASH) {
-            session = new SmashSession(data, false);
-        } else if (type == EventType.RACE) {
-            session = new RaceSession(data, false);
-        } else if (type == EventType.CATCH) {
-            session = new CatchSession(data, false);
-        }
+        GameSession session = createSession(data, false);
         if (session != null) {
             if (session.getMap() != null && session.getMap().isValid() && !session.getMap().isClosed()) {
                 session.setState(State.OPENED);
@@ -83,24 +73,30 @@ public class SessionManager {
     }
 
     private GameSession createSession(SessionData data) {
-        GameSession session = null;
-        if (data.getEventType() == EventType.KOH) {
-            session = new KohSession(data, true);
-        } else if (data.getEventType() == EventType.SPLEEF) {
-            session = new SpleefSession(data, true);
-        } else if (data.getEventType() == EventType.SMASH) {
-            session = new SmashSession(data, true);
-        } else if (data.getEventType() == EventType.RACE) {
-            session = new RaceSession(data, true);
-        } else if (data.getEventType() == EventType.CATCH) {
-            session = new CatchSession(data, true);
-        }
-
+        GameSession session = createSession(data, true);
         if (session == null || session.getID() < 0) {
             return null;
         }
 
         sessions.put(session.getID(), session);
+        return session;
+    }
+
+    private GameSession createSession(SessionData data, boolean loaded) {
+        GameSession session = null;
+        if (data.getEventType() == EventType.KOH) {
+            session = new KohSession(data, loaded);
+        } else if (data.getEventType() == EventType.SPLEEF) {
+            session = new SpleefSession(data, loaded);
+        } else if (data.getEventType() == EventType.SMASH) {
+            session = new SmashSession(data, loaded);
+        } else if (data.getEventType() == EventType.RACE) {
+            session = new RaceSession(data, loaded);
+        } else if (data.getEventType() == EventType.CATCH) {
+            session = new CatchSession(data, loaded);
+        } else if (data.getEventType() == EventType.DUCKHUNT) {
+            session = new DuckHuntSession(data, loaded);
+        }
         return session;
     }
 
