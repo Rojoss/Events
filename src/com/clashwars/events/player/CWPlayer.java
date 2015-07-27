@@ -32,6 +32,7 @@ public class CWPlayer {
 
     private CooldownManager cdm = new CooldownManager();
     private RelogRunnable relogRunnable;
+    private Location signJoinLoc;
 
     private EventType selectedEvent;
     private String selectedMap;
@@ -149,6 +150,15 @@ public class CWPlayer {
     }
 
 
+    public Location getSignJoinLoc() {
+        return signJoinLoc;
+    }
+
+    public void setSignJoinLoc(Location signJoinLoc) {
+        this.signJoinLoc = signJoinLoc;
+    }
+
+
     public EventType getSelectedEvent() {
         return selectedEvent;
     }
@@ -220,5 +230,4 @@ public class CWPlayer {
         }
         return false;
     }
-
 }

@@ -190,6 +190,7 @@ public class GameSession {
         UUID uuid = player.getUniqueId();
         CWPlayer cwp = events.pm.getPlayer(player);
         cwp.setSession(session);
+        cwp.setSignJoinLoc(player.getLocation());
 
         if (isOnHold()) {
             //Joining back while the session is on hold. (Only allow previous players to join. Others will be put in spectate mode)
@@ -527,6 +528,9 @@ public class GameSession {
     public Location getTeleportLocation(CWPlayer cwp) {
         Location loc = null;
         if (isOpened() || isResetting()) {
+            if (cwp.getSignJoinLoc() != null) {
+                return cwp.getSignJoinLoc();
+            }
             return cwp.getWorld().getSpawnLocation();
         }
         if (cwp.isSpectating() || spawnLocs.size() <= 0) {

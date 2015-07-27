@@ -86,8 +86,11 @@ public class Util {
         cwp.reset();
         cwp.resetData();
 
-        //TODO: Teleport player to last game sign area.
-        player.teleport(player.getWorld().getSpawnLocation());
+        if (cwp.getSignJoinLoc() != null) {
+            player.teleport(cwp.getSignJoinLoc());
+        } else {
+            player.teleport(player.getWorld().getSpawnLocation());
+        }
 
         CWUtil.resetPlayer(player, GameMode.SURVIVAL);
         Equipment.LOBBY.equip(player);
