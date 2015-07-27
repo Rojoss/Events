@@ -4,6 +4,7 @@ import com.clashwars.cwcore.cuboid.Cuboid;
 import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.events.Events;
 import com.clashwars.events.config.data.SessionCfg;
+import com.clashwars.events.events._catch.CatchSession;
 import com.clashwars.events.events.koh.KohSession;
 import com.clashwars.events.events.race.RaceSession;
 import com.clashwars.events.events.smash.SmashSession;
@@ -67,6 +68,8 @@ public class SessionManager {
             session = new SmashSession(data, false);
         } else if (type == EventType.RACE) {
             session = new RaceSession(data, false);
+        } else if (type == EventType.CATCH) {
+            session = new CatchSession(data, false);
         }
         if (session != null) {
             if (session.getMap() != null && session.getMap().isValid() && !session.getMap().isClosed()) {
@@ -89,6 +92,8 @@ public class SessionManager {
             session = new SmashSession(data, true);
         } else if (data.getEventType() == EventType.RACE) {
             session = new RaceSession(data, true);
+        } else if (data.getEventType() == EventType.CATCH) {
+            session = new CatchSession(data, true);
         }
 
         if (session == null || session.getID() < 0) {
@@ -157,7 +162,7 @@ public class SessionManager {
     public GameSession getSession(Location location) {
         for (GameSession session : sessions.values()) {
             if (session.getMap() != null && session.getMap().isValid()) {
-                Cuboid mapCub = session.getMap().getCuboid("arena");
+                Cuboid mapCub = session.getMap().getCuboid("map");
                 if (mapCub != null && mapCub.contains(location)) {
                     return session;
                 }

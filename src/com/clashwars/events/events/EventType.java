@@ -1,6 +1,7 @@
 package com.clashwars.events.events;
 
 import com.clashwars.cwcore.utils.CWUtil;
+import com.clashwars.events.events._catch.Catch;
 import com.clashwars.events.events.koh.Koh;
 import com.clashwars.events.events.race.Race;
 import com.clashwars.events.events.smash.Smash;
@@ -16,7 +17,8 @@ public enum EventType {
     KOH(new Koh()),
     SPLEEF(new Spleef()),
     RACE(new Race()),
-    SMASH(new Smash());
+    SMASH(new Smash()),
+    CATCH(new Catch());
 
 
     private BaseEvent eventClass;
