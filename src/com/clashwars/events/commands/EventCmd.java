@@ -33,7 +33,7 @@ public class EventCmd extends PlayerCmd {
         CWPlayer cwp = events.pm.getPlayer(player);
         if (cwp.inSession() && cwp.getSession() != null) {
             cwp.setSelectedEvent(cwp.getSession().getType());
-            cwp.setSelectedMap(cwp.getSelectedMap());
+            cwp.setSelectedMap(cwp.getSession().getMapName());
         }
 
         if (args[0].equalsIgnoreCase("select")) {

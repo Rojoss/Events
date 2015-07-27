@@ -99,6 +99,13 @@ public class EventMap {
         return name;
     }
 
+    public void rename(String newName) {
+        this.name = newName;
+        this.tag = getType().toString().toLowerCase() + "-" + newName;
+        data.setName(newName);
+        save();
+    }
+
     /** Returns the map tag which is 'eventname-mapname' */
     public String getTag() {
         return tag;

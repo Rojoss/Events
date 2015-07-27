@@ -33,7 +33,10 @@ public class SetupCmd extends PlayerCmd {
         }
 
         CWPlayer cwp = events.pm.getPlayer(player);
-
+        if (cwp.inSession() && cwp.getSession() != null) {
+            cwp.setSelectedEvent(cwp.getSession().getType());
+            cwp.setSelectedMap(cwp.getSession().getMapName());
+        }
 
         if (args[0].equalsIgnoreCase("create")) {
             if (args.length < 3) {
@@ -417,13 +420,18 @@ public class SetupCmd extends PlayerCmd {
                     return;
                 }
                 map.setMaxPlayers(amount);
-                player.sendMessage(Util.formatMsg("&6Maximum allowed players set to &a" +amount + "&6!"));
+                if (events.sm.hasSession(map.getType(), map.getName())) {
+                    Util.updateSign(map, events.sm.getSession(map.getType(), map.getName()));
+                } else {
+                    Util.updateSign(map, null);
+                }
+                player.sendMessage(Util.formatMsg("&6Maximum allowed players set to &a" + amount + "&6!"));
                 return;
             }
 
             if (args[1].equalsIgnoreCase("vip")) {
                 map.setVipSpots(amount);
-                player.sendMessage(Util.formatMsg("&6Extra VIP slots set to &a" +amount + "&6!"));
+                player.sendMessage(Util.formatMsg("&6Extra VIP slots set to &a" + amount + "&6!"));
                 return;
             }
 
@@ -453,6 +461,37 @@ public class SetupCmd extends PlayerCmd {
 
             map.setAuthors(authors);
             player.sendMessage(Util.formatMsg("&6Author list set!"));
+            return;
+        }
+
+        if (args[0].equalsIgnoreCase("name")) {
+            if (cwp.getSelectedEvent() == null || cwp.getSelectedMap() == null || events.mm.getMap(cwp.getSelectedEvent(), cwp.getSelectedMap()) == null) {
+                player.sendMessage(Util.formatMsg("&cNo map selected! &7Select one using &c/setup select&7!"));
+                return;
+            }
+            EventMap map = events.mm.getMap(cwp.getSelectedEvent(), cwp.getSelectedMap());
+
+            if (args.length < 2) {
+                player.sendMessage(Util.formatMsg("&cInvalid usage! &7/setup name {newname}"));
+                return;
+            }
+
+            events.mm.renameMap(cwp.getSelectedEvent(), cwp.getSelectedMap(), args[1]);
+            player.sendMessage(Util.formatMsg("&6&lName changed to &a&l" + args[1] + "&6&l!"));
+            return;
+        }
+
+        if (args[0].equalsIgnoreCase("remove") || args[1].equalsIgnoreCase("delete")) {
+            if (cwp.getSelectedEvent() == null || cwp.getSelectedMap() == null || events.mm.getMap(cwp.getSelectedEvent(), cwp.getSelectedMap()) == null) {
+                player.sendMessage(Util.formatMsg("&cNo map selected! &7Select one using &c/setup select&7!"));
+                return;
+            }
+            EventMap map = events.mm.getMap(cwp.getSelectedEvent(), cwp.getSelectedMap());
+
+            events.mm.maps.remove(map.getTag());
+            events.mapCfg.removeMap(map.getTag());
+            map.getBlock("sign").setType(Material.AIR);
+            player.sendMessage(Util.formatMsg("&6&lMap removed!"));
             return;
         }
 
@@ -535,6 +574,7 @@ public class SetupCmd extends PlayerCmd {
         player.sendMessage(CWUtil.integrateColor("&8--- &7&lMap properties &8---"));
         player.sendMessage(CWUtil.integrateColor("&6/setup slots {min|max|vip} {amount} &8- &7Set slot amounts."));
         player.sendMessage(CWUtil.integrateColor("&6/setup authors {author,author,etc..} &8- &7Set/get list of authors"));
+        player.sendMessage(CWUtil.integrateColor("&6/setup name {newname} &8- &7Rename the selected map."));
         player.sendMessage(CWUtil.integrateColor("&7&oMost of the above commands work for the selected map!"));
     }
 }

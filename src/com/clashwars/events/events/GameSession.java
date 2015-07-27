@@ -1,5 +1,6 @@
 package com.clashwars.events.events;
 
+import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.cwcore.packet.Title;
 import com.clashwars.cwcore.player.Vanish;
 import com.clashwars.cwcore.scoreboard.CWBoard;
@@ -46,7 +47,9 @@ public class GameSession {
         this.data = data;
 
         map = events.mm.getMap(getType(), getMapName());
-        map.validateMap();
+        if (map != null) {
+            map.validateMap();
+        }
         event = getType().getEventClass();
 
         if (event == null || map == null || !map.isValid() || map.isClosed()) {

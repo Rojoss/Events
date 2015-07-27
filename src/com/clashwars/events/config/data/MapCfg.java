@@ -2,6 +2,7 @@ package com.clashwars.events.config.data;
 
 import com.clashwars.cwcore.config.internal.EasyConfig;
 import com.clashwars.events.Events;
+import com.clashwars.events.events.EventType;
 import com.clashwars.events.maps.MapData;
 
 import java.util.HashMap;
@@ -35,5 +36,14 @@ public class MapCfg extends EasyConfig {
     public void removeMap(String mapTag) {
         MAPS.remove(mapTag);
         save();
+    }
+
+    public void renameMap(EventType event, String prevName, String newName) {
+        String prevTag = event.toString().toLowerCase() + "-" + prevName;
+        if (MAPS.containsKey(prevTag)) {
+            MapData data = getMap(prevTag);
+            removeMap(prevTag);
+            setMap(event.toString().toLowerCase() + "-" + newName, data);
+        }
     }
 }

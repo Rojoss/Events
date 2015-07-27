@@ -81,4 +81,14 @@ public class MapManager {
         return list;
     }
 
+    public void renameMap(EventType eventType, String prevName, String newName) {
+        ev.mapCfg.renameMap(eventType, prevName, newName);
+        EventMap map = getMap(eventType, prevName);
+        if (map != null) {
+            maps.remove(eventType.toString().toLowerCase() + "-" + prevName);
+            maps.put(eventType.toString().toLowerCase() + "-" + newName, map);
+            map.rename(newName);
+        }
+    }
+
 }
