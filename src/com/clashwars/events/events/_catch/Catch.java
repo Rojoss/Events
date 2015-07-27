@@ -100,12 +100,12 @@ public class Catch extends BaseEvent {
                     }.runTaskLater(events, 200);
                 }
             }
-        }.runTaskTimer(events, 0, 40);
+        }.runTaskTimer(events, 0, 60);
     }
 
     public List<CWItem> getEquipment(GameSession session) {
         List<CWItem> equipment = new ArrayList<CWItem>();
-        equipment.add(new CWItem(Material.FISHING_ROD, 1));
+        equipment.add(new CWItem(Material.FISHING_ROD, 1).addEnchant(Enchantment.DURABILITY, 10));
         return equipment;
     }
 
