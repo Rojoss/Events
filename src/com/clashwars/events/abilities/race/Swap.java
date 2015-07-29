@@ -14,6 +14,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 public class Swap extends BaseAbility {
@@ -46,6 +47,7 @@ public class Swap extends BaseAbility {
         player.getWorld().playEffect(targetLoc, Effect.ENDER_SIGNAL, 1);
         player.getWorld().playSound(playerLoc, Sound.ENDERMAN_TELEPORT, 0.5f, 0.6f);
         player.getWorld().playSound(targetLoc, Sound.ENDERMAN_TELEPORT, 1, 1.2f);
+        player.getInventory().setItem(0, new ItemStack(Material.AIR));
     }
 
 
