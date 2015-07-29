@@ -1,6 +1,5 @@
 package com.clashwars.events.events;
 
-import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.cwcore.packet.Title;
 import com.clashwars.cwcore.player.Vanish;
 import com.clashwars.cwcore.scoreboard.CWBoard;
@@ -447,7 +446,6 @@ public class GameSession {
     /** Reset the game/map. */
     public boolean reset() {
         if (isResetting()) {
-            Bukkit.broadcastMessage("GameSession > Already resetting!");
             return false;
         }
         setState(State.RESETTING);
