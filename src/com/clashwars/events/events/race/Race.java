@@ -13,6 +13,8 @@ import com.clashwars.events.setup.SetupType;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -68,6 +70,12 @@ public class Race extends BaseEvent {
                     List<Player> onlinePlayers = session.getAllOnlinePlayers(false);
                     for (final Player p : onlinePlayers) {
                         final Location playerLoc = p.getLocation();
+                        Block block = playerLoc.getBlock();
+                        Block below = playerLoc.getBlock().getRelative(BlockFace.DOWN);
+                        if (block.getType() == Material.FIRE || block.getType() == Material.LAVA || block.getType() == Material.STATIONARY_LAVA ||
+                                below.getType() == Material.AIR || below.getType() == Material.FIRE || below.getType() == Material.LAVA || below.getType() == Material.STATIONARY_LAVA) {
+                            continue;
+                        }
                         new BukkitRunnable() {
                             @Override
                             public void run() {
