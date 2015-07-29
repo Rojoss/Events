@@ -265,7 +265,7 @@ public class Spleef extends BaseEvent {
     }
 
     private void destroyBlock(Player player, Block block, boolean giveSnowball) {
-        block.setTypeIdAndData(9, (byte) 7, false);
+        block.setTypeId(0, false);
 
         if (giveSnowball && player != null && CWUtil.randomFloat() <= 0.1f) {
             new CWItem(Material.SNOW_BALL, 1).giveToPlayer(player);
