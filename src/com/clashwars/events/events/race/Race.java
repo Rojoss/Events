@@ -66,13 +66,13 @@ public class Race extends BaseEvent {
                     }
 
                     List<Player> onlinePlayers = session.getAllOnlinePlayers(false);
-                    for (Player p : onlinePlayers) {
+                    for (final Player p : onlinePlayers) {
                         final Location playerLoc = p.getLocation();
                         new BukkitRunnable() {
                             @Override
                             public void run() {
                                 SessionData data = session.getData();
-                                data.setEventData("player-loc", CWUtil.locToStringSimple(playerLoc));
+                                data.setEventData("player-loc-" + p.getName(), CWUtil.locToStringSimple(playerLoc));
                                 session.setData(data);
                             }
                         }.runTaskLater(events, 100);
@@ -99,8 +99,8 @@ public class Race extends BaseEvent {
         }
         final GameSession session = getSession(player);
 
-        if (session.getData().hasEventData("player-loc") && !session.getData().getEventData("player-loc").isEmpty()) {
-            event.setRespawnLocation(CWUtil.locFromStringSimple(session.getData().getEventData("player-loc")));
+        if (session.getData().hasEventData("player-loc-" + player.getName()) && !session.getData().getEventData("player-loc-" + player.getName()).isEmpty()) {
+            event.setRespawnLocation(CWUtil.locFromStringSimple(session.getData().getEventData("player-loc-" + player.getName())));
         } else {
             event.setRespawnLocation(session.getTeleportLocation(getCWPlayer(player)));
         }
