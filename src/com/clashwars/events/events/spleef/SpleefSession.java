@@ -27,7 +27,7 @@ public class SpleefSession extends GameSession {
             return false;
         }
         for (Block b : getMap().getCuboid("floor").getBlocks()) {
-            if (b.getType() == Material.WATER || b.getType() == Material.STATIONARY_WATER || b.getType() == Material.ICE || b.getType() == Material.PACKED_ICE) {
+            if (b.getType() == Material.AIR || b.getType() == Material.WATER || b.getType() == Material.STATIONARY_WATER || b.getType() == Material.ICE || b.getType() == Material.PACKED_ICE) {
                 b.setType(Material.SNOW_BLOCK);
             }
         }
