@@ -481,7 +481,7 @@ public class SetupCmd extends PlayerCmd {
             return;
         }
 
-        if (args[0].equalsIgnoreCase("remove") || args[1].equalsIgnoreCase("delete")) {
+        if (args[0].equalsIgnoreCase("remove") || args[0].equalsIgnoreCase("delete")) {
             if (cwp.getSelectedEvent() == null || cwp.getSelectedMap() == null || events.mm.getMap(cwp.getSelectedEvent(), cwp.getSelectedMap()) == null) {
                 player.sendMessage(Util.formatMsg("&cNo map selected! &7Select one using &c/setup select&7!"));
                 return;
