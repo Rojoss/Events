@@ -168,7 +168,7 @@ public class Catch extends BaseEvent {
                     if (cwp.getTeleportID() == entry.getKey()) {
                         session.getBoard().setScore(DisplaySlot.SIDEBAR, cwp.getName(),
                                 Math.max(session.getBoard().getScore(DisplaySlot.SIDEBAR, cwp.getName()) + CWUtil.getInt(CWUtil.stripAllColor(event.getEntity().getName())), 0));
-                        if (session.getBoard().getScore(DisplaySlot.SIDEBAR, cwp.getName()) >= 25) {
+                        if (session.getBoard().getScore(DisplaySlot.SIDEBAR, cwp.getName()) >= 20) {
                             session.end(cwp.getUUID());
                         }
                         return;

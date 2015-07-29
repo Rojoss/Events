@@ -167,7 +167,7 @@ public class DuckHunt extends BaseEvent {
 
         session.getBoard().setScore(DisplaySlot.SIDEBAR, killer.getName(),
                 Math.max(session.getBoard().getScore(DisplaySlot.SIDEBAR, killer.getName()) + CWUtil.getInt(CWUtil.stripAllColor(event.getEntity().getName())), 0));
-        if (session.getBoard().getScore(DisplaySlot.SIDEBAR, killer.getName()) >= 25) {
+        if (session.getBoard().getScore(DisplaySlot.SIDEBAR, killer.getName()) >= 20) {
             session.end(killer.getUniqueId());
         }
     }
