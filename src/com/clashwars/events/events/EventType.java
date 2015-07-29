@@ -3,6 +3,7 @@ package com.clashwars.events.events;
 import com.clashwars.cwcore.utils.CWUtil;
 import com.clashwars.events.events._catch.Catch;
 import com.clashwars.events.events._duckhunt.DuckHunt;
+import com.clashwars.events.events._snake.Snake;
 import com.clashwars.events.events.koh.Koh;
 import com.clashwars.events.events.race.Race;
 import com.clashwars.events.events.smash.Smash;
@@ -20,7 +21,8 @@ public enum EventType {
     RACE(new Race()),
     SMASH(new Smash()),
     CATCH(new Catch()),
-    DUCKHUNT(new DuckHunt());
+    DUCKHUNT(new DuckHunt()),
+    SNAKE(new Snake());
 
 
     private BaseEvent eventClass;

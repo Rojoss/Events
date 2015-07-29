@@ -6,6 +6,7 @@ import com.clashwars.events.Events;
 import com.clashwars.events.config.data.SessionCfg;
 import com.clashwars.events.events._catch.CatchSession;
 import com.clashwars.events.events._duckhunt.DuckHuntSession;
+import com.clashwars.events.events._snake.SnakeSession;
 import com.clashwars.events.events.koh.KohSession;
 import com.clashwars.events.events.race.RaceSession;
 import com.clashwars.events.events.smash.SmashSession;
@@ -96,6 +97,8 @@ public class SessionManager {
             session = new CatchSession(data, loaded);
         } else if (data.getEventType() == EventType.DUCKHUNT) {
             session = new DuckHuntSession(data, loaded);
+        } else if (data.getEventType() == EventType.SNAKE) {
+            session = new SnakeSession(data, loaded);
         }
         return session;
     }
