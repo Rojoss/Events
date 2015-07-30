@@ -3,6 +3,7 @@ package com.clashwars.events.commands;
 import com.clashwars.cwcore.cuboid.Cuboid;
 import com.clashwars.cwcore.cuboid.Selection;
 import com.clashwars.cwcore.cuboid.SelectionStatus;
+import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.cwcore.dependencies.CWWorldEdit;
 import com.clashwars.cwcore.utils.CWUtil;
 import com.clashwars.events.commands.internal.PlayerCmd;
@@ -14,10 +15,13 @@ import com.clashwars.events.setup.SetupType;
 import com.clashwars.events.util.Util;
 import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.util.io.file.FilenameException;
+import com.sk89q.worldedit.world.DataException;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.primesoft.asyncworldedit.api.blockPlacer.IJobEntryListener;
+import org.primesoft.asyncworldedit.blockPlacer.entries.JobEntry;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +30,7 @@ import java.util.*;
 public class SetupCmd extends PlayerCmd {
 
     @Override
-    public void onCommand(Player player, String[] args) {
+    public void onCommand(final Player player, String[] args) {
         if (args.length < 1) {
             showHelp(player);
             return;
@@ -539,8 +543,16 @@ public class SetupCmd extends PlayerCmd {
             File mapsFolder = new File(events.getDataFolder(), "maps");
             mapsFolder.mkdir();
             try {
-                CWWorldEdit.loadSchematic(new File(mapsFolder, map.getTag()), mapCuboid.getMinLoc());
-                player.sendMessage(Util.formatMsg("&6&lThe map has been &a&lloaded&6&l!"));
+                IJobEntryListener callback = new IJobEntryListener() {
+                    @Override
+                    public void jobStateChanged(JobEntry jobEntry) {
+                        if (jobEntry.isTaskDone() && jobEntry.getStatus() == JobEntry.JobStatus.Done) {
+                            player.sendMessage(Util.formatMsg("&6&lThe map has been &a&lloaded&6&l!"));
+                        }
+                    }
+                };
+                player.sendMessage(Util.formatMsg("&7Loading the map..."));
+                CWWorldEdit.loadSchematicAsync(new File(mapsFolder, map.getTag()), mapCuboid.getMinLoc(), callback);
             } catch (FilenameException e) {
                 player.sendMessage(Util.formatMsg("&cFailed at loading the map! &7No schematic file found. Did you save it?"));
             } catch (IOException e) {
@@ -549,6 +561,8 @@ public class SetupCmd extends PlayerCmd {
                 player.sendMessage(Util.formatMsg("&cFailed at loading the map! &7Couldn't load data from the schematic file."));
             } catch (MaxChangedBlocksException e) {
                 player.sendMessage(Util.formatMsg("&cFailed at loading the map! &7The schematic is too big!"));
+            } catch (DataException e) {
+                player.sendMessage(Util.formatMsg("&cFailed at loading the map! &7Couldn't load data from the schematic file."));
             }
             return;
         }

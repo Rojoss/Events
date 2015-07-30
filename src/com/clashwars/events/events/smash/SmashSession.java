@@ -1,5 +1,8 @@
 package com.clashwars.events.events.smash;
 
+import com.clashwars.cwcore.cuboid.Cuboid;
+import com.clashwars.cwcore.debug.Debug;
+import com.clashwars.cwcore.dependencies.CWWorldEdit;
 import com.clashwars.cwcore.player.Freeze;
 import com.clashwars.cwcore.scoreboard.Criteria;
 import com.clashwars.cwcore.utils.CWUtil;
@@ -8,10 +11,18 @@ import com.clashwars.events.events.SessionData;
 import com.clashwars.events.modifiers.Modifier;
 import com.clashwars.events.modifiers.ModifierOption;
 import com.clashwars.events.player.CWPlayer;
+import com.clashwars.events.util.Util;
+import com.sk89q.worldedit.MaxChangedBlocksException;
+import com.sk89q.worldedit.util.io.file.FilenameException;
+import com.sk89q.worldedit.world.DataException;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
+import org.primesoft.asyncworldedit.api.blockPlacer.IJobEntryListener;
+import org.primesoft.asyncworldedit.blockPlacer.entries.JobEntry;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class SmashSession extends GameSession {
@@ -40,7 +51,32 @@ public class SmashSession extends GameSession {
         if (!super.reset()) {
             return false;
         }
-        delete();
+
+        Cuboid mapCuboid = getMap().getCuboid("map");
+
+        File mapsFolder = new File(events.getDataFolder(), "maps");
+        mapsFolder.mkdir();
+        try {
+            IJobEntryListener callback = new IJobEntryListener() {
+                @Override
+                public void jobStateChanged(JobEntry jobEntry) {
+                    if (jobEntry.isTaskDone() && jobEntry.getStatus() == JobEntry.JobStatus.Done) {
+                        delete();
+                    }
+                }
+            };
+            CWWorldEdit.loadSchematicAsync(new File(mapsFolder, getMapTag()), mapCuboid.getMinLoc(), callback);
+        } catch (FilenameException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (com.sk89q.worldedit.data.DataException e) {
+            e.printStackTrace();
+        } catch (MaxChangedBlocksException e) {
+            e.printStackTrace();
+        } catch (DataException e) {
+            e.printStackTrace();
+        }
         return true;
     }
 
