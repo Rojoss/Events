@@ -84,6 +84,8 @@ public class MainListener implements Listener {
 
         if (session != null) {
             player.sendMessage(Util.formatMsg("&6Welcome back to the game!"));
+        } else {
+            Util.teleportLobby(player);
         }
     }
 

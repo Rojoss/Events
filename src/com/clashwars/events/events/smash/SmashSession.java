@@ -1,17 +1,12 @@
 package com.clashwars.events.events.smash;
 
 import com.clashwars.cwcore.cuboid.Cuboid;
-import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.cwcore.dependencies.CWWorldEdit;
-import com.clashwars.cwcore.player.Freeze;
 import com.clashwars.cwcore.scoreboard.Criteria;
 import com.clashwars.cwcore.utils.CWUtil;
 import com.clashwars.events.events.GameSession;
 import com.clashwars.events.events.SessionData;
 import com.clashwars.events.modifiers.Modifier;
-import com.clashwars.events.modifiers.ModifierOption;
-import com.clashwars.events.player.CWPlayer;
-import com.clashwars.events.util.Util;
 import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.util.io.file.FilenameException;
 import com.sk89q.worldedit.world.DataException;
