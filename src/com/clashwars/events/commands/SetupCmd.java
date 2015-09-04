@@ -3,7 +3,6 @@ package com.clashwars.events.commands;
 import com.clashwars.cwcore.cuboid.Cuboid;
 import com.clashwars.cwcore.cuboid.Selection;
 import com.clashwars.cwcore.cuboid.SelectionStatus;
-import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.cwcore.dependencies.CWWorldEdit;
 import com.clashwars.cwcore.utils.CWUtil;
 import com.clashwars.events.commands.internal.PlayerCmd;
@@ -230,7 +229,7 @@ public class SetupCmd extends PlayerCmd {
             if (map.setblock(args[1], blocks.get(1))) {
                 player.sendMessage(Util.formatMsg("&6Block location &a" + args[1] + " set! &8(&7" + blocks.get(1).getType() + "&8)"));
                 if (args[1].equalsIgnoreCase("sign")) {
-                    Util.updateSign(map, null);
+                    Util.updateStatus(map, null);
                 }
             } else {
                 player.sendMessage(Util.formatMsg("&cInvalid name! &7This event doesn't require a block with the name " + args[1] + "!"));
@@ -425,9 +424,9 @@ public class SetupCmd extends PlayerCmd {
                 }
                 map.setMaxPlayers(amount);
                 if (events.sm.hasSession(map.getType(), map.getName())) {
-                    Util.updateSign(map, events.sm.getSession(map.getType(), map.getName()));
+                    Util.updateStatus(map, events.sm.getSession(map.getType(), map.getName()));
                 } else {
-                    Util.updateSign(map, null);
+                    Util.updateStatus(map, null);
                 }
                 player.sendMessage(Util.formatMsg("&6Maximum allowed players set to &a" + amount + "&6!"));
                 return;

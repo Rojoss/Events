@@ -86,7 +86,7 @@ public class GameSession {
         board.register();
         board.addTeam("spectators","&d","","&dSpectators", false, true, NameTagVisibility.ALWAYS);
 
-        Util.updateSign(map, session);
+        Util.updateStatus(map, session);
         save();
     }
 
@@ -262,7 +262,7 @@ public class GameSession {
         if (board != null) {
             board.addPlayer(player);
         }
-        Util.updateSign(map, session);
+        Util.updateStatus(map, session);
         save();
     }
 
@@ -295,7 +295,7 @@ public class GameSession {
             board.removePlayer(uuid);
             board.resetScore(player.getName());
         }
-        Util.updateSign(map, session);
+        Util.updateStatus(map, session);
         save();
 
         if (force) {
@@ -346,7 +346,7 @@ public class GameSession {
         Equipment.SPECTATOR.equip(player);
 
         player.teleport(spawnLocs.get(0));
-        Util.updateSign(map, session);
+        Util.updateStatus(map, session);
 
         if (getPlayerCount(false) <= 0) {
             //If no players left reset the session.
@@ -470,7 +470,7 @@ public class GameSession {
                 board.unregister();
                 board.delete();
             }
-            Util.updateSign(map, null);
+            Util.updateStatus(map, null);
             events.sm.deleteSession(getID());
         }
     }
@@ -793,7 +793,7 @@ public class GameSession {
     /** Set the game state of this session */
     public void setState(State state) {
         data.setState(state);
-        Util.updateSign(map, session);
+        Util.updateStatus(map, session);
         save();
     }
 

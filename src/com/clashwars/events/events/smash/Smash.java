@@ -41,6 +41,9 @@ public class Smash extends BaseEvent {
 
     public Smash() {
         super();
+        displayName = "&5&lSmash";
+        menuSlot = 26;
+        menuItem = new CWItem(Material.RAW_FISH, 1, (byte)3);
         setupModifiers("SMASH_");
 
         abilities.add(Ability.COOKIE);

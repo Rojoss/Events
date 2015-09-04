@@ -37,10 +37,12 @@ import java.util.*;
 
 public class Catch extends BaseEvent {
 
-
-
     public Catch() {
         super();
+        displayName = "&b&lCatch";
+        menuSlot = 0;
+        menuItem = new CWItem(Material.FISHING_ROD);
+
         setupOptions.add(new SetupOption(SetupType.CUBOID, "chickenSpawn", "Area where chickens will spawn in."));
         setupOptions.add(new SetupOption(SetupType.MULTI_CUBOID, "deathBox", "Area where it will reward points when chicken dies. Needs an area per player with the same ID as the spawn point."));
         setupModifiers("CATCH_");

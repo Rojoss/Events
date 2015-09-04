@@ -15,3 +15,7 @@ commands:
     description: Player command to leave the current game.
     usage: /<command>
     aliases: [quit,hub,lobby]
+  play:
+    description: Player command to open the game menu.
+    usage: /<command>
+    aliases: [game,playgame]

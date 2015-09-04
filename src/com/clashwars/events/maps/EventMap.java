@@ -1,10 +1,8 @@
 package com.clashwars.events.maps;
 
 import com.clashwars.cwcore.cuboid.Cuboid;
-import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.cwcore.utils.CWUtil;
 import com.clashwars.events.Events;
-import com.clashwars.events.events.GameSession;
 import com.clashwars.events.setup.SetupOption;
 import com.clashwars.events.setup.SetupType;
 import com.clashwars.events.events.EventType;
@@ -40,7 +38,7 @@ public class EventMap {
         validateMap();
 
         if (isValid()) {
-            Util.updateSign(this, null);
+            Util.updateStatus(this, null);
         }
     }
 

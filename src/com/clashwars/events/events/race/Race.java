@@ -36,6 +36,9 @@ public class Race extends BaseEvent {
 
     public Race() {
         super();
+        displayName = "&8&lR&7&la&8&lc&7&le";
+        menuSlot = 24;
+        menuItem = new CWItem(Material.GREEN_RECORD);
         setupOptions.add(new SetupOption(SetupType.CUBOID, "finish", "Where the race ends. "));
         setupOptions.add(new SetupOption(SetupType.CUBOID, "beginWall", "The wall that blocks the players. "));
         setupOptions.add(new SetupOption(SetupType.MULTI_CUBOID, "powerUps", "Cuboid where powerups will spawn"));

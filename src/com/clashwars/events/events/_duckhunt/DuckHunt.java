@@ -38,10 +38,11 @@ import java.util.Map;
 
 public class DuckHunt extends BaseEvent {
 
-
-
     public DuckHunt() {
         super();
+        displayName = "&b&lDuckHunt";
+        menuSlot = 1;
+        menuItem = new CWItem(Material.BOW);
         setupOptions.add(new SetupOption(SetupType.CUBOID, "chickenSpawn", "Area where chickens will spawn in."));
         setupModifiers("DUCKHUNT_");
 

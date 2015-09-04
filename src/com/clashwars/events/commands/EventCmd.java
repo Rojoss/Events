@@ -1,22 +1,13 @@
 package com.clashwars.events.commands;
 
-import com.clashwars.cwcore.cuboid.Cuboid;
-import com.clashwars.cwcore.cuboid.Selection;
-import com.clashwars.cwcore.cuboid.SelectionStatus;
-import com.clashwars.cwcore.debug.Debug;
 import com.clashwars.cwcore.utils.CWUtil;
 import com.clashwars.events.commands.internal.PlayerCmd;
 import com.clashwars.events.events.EventType;
 import com.clashwars.events.events.GameSession;
 import com.clashwars.events.maps.EventMap;
 import com.clashwars.events.player.CWPlayer;
-import com.clashwars.events.setup.SetupOption;
-import com.clashwars.events.setup.SetupType;
 import com.clashwars.events.util.Util;
-import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -137,7 +128,7 @@ public class EventCmd extends PlayerCmd {
                 player.sendMessage(Util.formatMsg("&6&lMap &4&lclosed&6&l!"));
                 map.setClosed(true);
             }
-            Util.updateSign(map, null);
+            Util.updateStatus(map, null);
             return;
         }
 

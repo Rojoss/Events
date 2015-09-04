@@ -13,6 +13,8 @@ import com.clashwars.events.events.SessionManager;
 import com.clashwars.events.listeners.MainListener;
 import com.clashwars.events.listeners.ProtectionListener;
 import com.clashwars.events.maps.MapManager;
+import com.clashwars.events.menu.GameMenu;
+import com.clashwars.events.menu.MapMenu;
 import com.clashwars.events.player.PlayerManager;
 import com.google.gson.Gson;
 import org.bukkit.command.Command;
@@ -40,6 +42,9 @@ public class Events extends JavaPlugin {
     public EventManager em;
     public SessionManager sm;
     public MapManager mm;
+
+    public GameMenu gameMenu;
+    public MapMenu mapMenu;
 
     private final Logger log = Logger.getLogger("Minecraft");
 
@@ -77,6 +82,9 @@ public class Events extends JavaPlugin {
 
         StartMessages.populate();
 
+        gameMenu = new GameMenu(this);
+        mapMenu = new MapMenu(this);
+
         pm = new PlayerManager(this);
         em = new EventManager(this);
         mm = new MapManager(this);
@@ -100,6 +108,9 @@ public class Events extends JavaPlugin {
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new MainListener(this), this);
         pm.registerEvents(new ProtectionListener(this), this);
+
+        pm.registerEvents(gameMenu, this);
+        pm.registerEvents(mapMenu, this);
 
         pm.registerEvents(new BaseEvent(), this);
         EventType[] events = EventType.values();

@@ -37,6 +37,9 @@ public class Snake extends BaseEvent {
 
     public Snake() {
         super();
+        displayName = "&b&lSnake";
+        menuSlot = 2;
+        menuItem = new CWItem(Material.SKULL_ITEM).setSkullOwner("KylexDavis");
         setupOptions.add(new SetupOption(SetupType.CUBOID, "floor", "Area where apples will spawn. Should be one block above the floor"));
         setupModifiers("SNAKE_");
 

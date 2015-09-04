@@ -37,6 +37,9 @@ public class Koh extends BaseEvent {
 
     public Koh() {
         super();
+        displayName = "&6&lKing of The Hill";
+        menuSlot = 22;
+        menuItem = new CWItem(Material.GOLD_BLOCK);
         setupOptions.add(new SetupOption(SetupType.CUBOID, "hill", "Area where capturing is triggered."));
         setupModifiers("KOH_");
 

@@ -13,6 +13,8 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -26,11 +28,17 @@ public class Util {
     }
 
     /**
-     * Update the sign of the specified map.
+     * Update the status of the specified map.
      * If a session is provided (if not null) then it will update the player count and state based of the session data.
-     * It will only work if there is a sign at the sign block location.
+     * It will update the sign if it's set and update the game menu.
      */
-    public static void updateSign(EventMap map, GameSession session) {
+    public static void updateStatus(EventMap map, GameSession session) {
+        updateSign(map, session);
+        Events.inst().gameMenu.updateMenu();
+        Events.inst().mapMenu.updateMenu(map.getType());
+    }
+
+    private static void updateSign(EventMap map, GameSession session) {
         Block block = map.getBlock("sign");
         if (block == null || (block.getType() != Material.SIGN_POST && block.getType() != Material.WALL_SIGN)) {
             return;
@@ -93,6 +101,7 @@ public class Util {
         }
 
         CWUtil.resetPlayer(player, GameMode.SURVIVAL);
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 9999999, 1));
         Equipment.LOBBY.equip(player);
     }
 }

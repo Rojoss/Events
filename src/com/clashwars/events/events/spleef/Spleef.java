@@ -39,6 +39,9 @@ public class Spleef extends BaseEvent {
 
     public Spleef() {
         super();
+        displayName = "&b&lSpleef";
+        menuSlot = 20;
+        menuItem = new CWItem(Material.SNOW_BLOCK);
         setupOptions.add(new SetupOption(SetupType.CUBOID, "floor", "Area that can be broken. "));
         setupModifiers("SPLEEF_");
         new BukkitRunnable() {

@@ -8,11 +8,13 @@ import com.clashwars.events.modifiers.Modifier;
 import com.clashwars.events.player.CWPlayer;
 import com.clashwars.events.setup.SetupOption;
 import com.clashwars.events.setup.SetupType;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
@@ -25,9 +27,12 @@ public class BaseEvent implements Listener {
 
     protected Events events;
 
+    protected String displayName = "&c&lUNDEFINED";
     protected List<SetupOption> setupOptions = new ArrayList<SetupOption>(); /** Event specific setup options should be added in each event class. */
     protected List<Modifier> modifiers = new ArrayList<Modifier>();
     protected List<Ability> abilities = new ArrayList<Ability>();
+    protected CWItem menuItem = new CWItem(Material.PAPER);
+    protected int menuSlot = 0;
 
     public BaseEvent() {
         events = Events.inst();
@@ -37,6 +42,11 @@ public class BaseEvent implements Listener {
         setupOptions.add(new SetupOption(SetupType.MULTI_LOC, "spawn", "Location(s) where players (re)spawn."));
     }
 
+
+    /** Get the displayname of the event */
+    public String getDisplayName() {
+        return displayName;
+    }
 
     /** Get a list of SetupOption(s) that need to be specified for map validation */
     public List<SetupOption> getSetupOptions() {
@@ -103,6 +113,15 @@ public class BaseEvent implements Listener {
         return abilities;
     }
 
+    /** Get the item that represents the event for in menus */
+    public CWItem getMenuItem() {
+        return menuItem;
+    }
+
+    /** Get the slot in the game menu for this event */
+    public int getMenuSlot () {
+        return menuSlot;
+    }
 
 
     //Util/helper methods

@@ -2,12 +2,14 @@ package com.clashwars.events.commands.internal;
 
 import com.clashwars.events.commands.EventCmd;
 import com.clashwars.events.commands.LeaveCmd;
+import com.clashwars.events.commands.PlayCmd;
 import com.clashwars.events.commands.SetupCmd;
 
 public enum Command {
     SETUP(new SetupCmd(), "events.setup"),
     EVENT(new EventCmd(), "events.event", "events", "ev", "e"),
-    LEAVE(new LeaveCmd(), "", "quit", "hub", "lobby");
+    LEAVE(new LeaveCmd(), "", "quit", "hub", "lobby"),
+    PLAY(new PlayCmd(), "", "play", "game", "playgame");
 
     private BaseCmd cmd;
     private String permission;

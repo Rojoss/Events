@@ -21,6 +21,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,6 +94,39 @@ public class MainListener implements Listener {
     @EventHandler
     private void interact(DelayedPlayerInteractEvent event) {
         Player player = event.getPlayer();
+
+        //Using items
+        if (event.getItem() != null && event.getItem().hasItemMeta() && event.getItem().getItemMeta().hasDisplayName()) {
+            ItemStack item = event.getItem();
+            ItemMeta meta = item.getItemMeta();
+            String name = CWUtil.removeColour(meta.getDisplayName());
+
+            if (item.getType() == Material.EYE_OF_ENDER && name.equalsIgnoreCase("&6&l/PLAY")) {
+                player.performCommand("play");
+                return;
+            }
+            if (item.getType() == Material.HOPPER && name.equalsIgnoreCase("&5&l/MODIFIERS")) {
+                player.performCommand("modifiers");
+                return;
+            }
+            if (item.getType() == Material.DIODE && name.equalsIgnoreCase("&d&l/SETTINGS")) {
+                player.performCommand("settings");
+                return;
+            }
+            if (item.getType() == Material.NETHER_STAR && name.equalsIgnoreCase("&a&l/STATS")) {
+                player.performCommand("stats");
+                return;
+            }
+            if (item.getType() == Material.NAME_TAG && name.equalsIgnoreCase("&b&l/VOTESHOP")) {
+                player.performCommand("voteshop");
+                return;
+            }
+            if (item.getType() == Material.REDSTONE_BLOCK && name.equalsIgnoreCase("&4&l/LEAVE")) {
+                player.performCommand("leave");
+                return;
+            }
+        }
+
 
         //Clicking on signs
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.LEFT_CLICK_BLOCK) {
